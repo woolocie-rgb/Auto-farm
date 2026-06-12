@@ -1,0 +1,6 @@
+{
+  "name": "Buyplay - Key Play Together Auto",
+  "description": "Cửa hàng cung cấp Key Auto Mua Quả Trong Shop Play Together tự động hàng đầu. Giao key trực tuyến tức thì sau khi chuyển tiền thành công qua VietQR/MoMo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
