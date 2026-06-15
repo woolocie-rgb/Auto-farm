@@ -46,13 +46,27 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: inputValue, password })
     })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((data) => {
-            throw new Error(data.message || (isSignUp ? "Lỗi đăng ký!" : "Lỗi đăng nhập!"));
-          });
+      .then(async (res) => {
+        const text = await res.text();
+        let data: any = null;
+        try {
+          if (text) {
+            data = JSON.parse(text);
+          }
+        } catch (e) {
+          console.error("Failed to parse JSON response:", e);
         }
-        return res.json();
+
+        if (!res.ok) {
+          const errorMessage = data?.message || (isSignUp ? "Tài khoản này đã tồn tại hoặc lỗi đăng ký!" : "Tài khoản không tồn tại hoặc mật khẩu chưa đúng!");
+          throw new Error(errorMessage);
+        }
+
+        if (!data) {
+          throw new Error("Phản hồi rỗng từ máy chủ!");
+        }
+
+        return data;
       })
       .then((data) => {
         setIsLoading(false);
