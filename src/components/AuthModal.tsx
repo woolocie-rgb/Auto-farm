@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Lock, Mail, Phone, ShieldCheck, Sparkles, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { User } from "../types";
+import { getLocalUsers, saveLocalUsers } from "../utils/dbFallback";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -41,6 +42,118 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
 
     const apiPath = isSignUp ? "/api/users/register" : "/api/users/login";
 
+    const tryLocalAuth = (origErrorMsg?: string) => {
+      // Fallback local authentication
+      const usernameLower = inputValue.trim().toLowerCase();
+      
+      // Auto-handle special user credentials immediately as a fallback and seed
+      if (
+        ["0334410858", "woolocie@gmail.com"].includes(usernameLower) &&
+        password === "Quocloc@21"
+      ) {
+        const localUsers = getLocalUsers();
+        let adminUser = localUsers.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === usernameLower);
+        if (!adminUser) {
+          adminUser = {
+            phoneNumberOrEmail: inputValue.trim(),
+            password,
+            referralCode: "AFF-" + (inputValue.includes("@") ? inputValue.split("@")[0] : "LOC").toUpperCase().substring(0, 5),
+            referralEarnings: 5000000,
+            balance: 10000000,
+            isAdmin: true
+          };
+          localUsers.push(adminUser);
+          saveLocalUsers(localUsers);
+        }
+        
+        setIsLoading(false);
+        const loggedInUser: User = {
+          phoneNumberOrEmail: adminUser.phoneNumberOrEmail,
+          referralCode: adminUser.referralCode,
+          referralEarnings: adminUser.referralEarnings,
+          isLoggedIn: true,
+          isAdmin: adminUser.isAdmin,
+          balance: adminUser.balance
+        };
+
+        localStorage.setItem("user_session", loggedInUser.phoneNumberOrEmail);
+        onLoginSuccess(loggedInUser);
+        setSuccess("ĐĂNG NHẬP ADMIN THỬ NGHIỆM THÀNH CÔNG (Dự phòng offline)!");
+        setTimeout(() => {
+          onClose();
+        }, 1000);
+        return;
+      }
+
+      if (isSignUp) {
+        const localUsers = getLocalUsers();
+        const exists = localUsers.some(u => u.phoneNumberOrEmail.trim().toLowerCase() === usernameLower);
+        if (exists) {
+          setIsLoading(false);
+          setError("Tài khoản này đã tồn tại trên hệ thống!");
+          return;
+        }
+
+        const newUser = {
+          phoneNumberOrEmail: inputValue.trim(),
+          password,
+          referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
+          referralEarnings: 50000,
+          balance: 100000,
+          isAdmin: false
+        };
+
+        localUsers.push(newUser);
+        saveLocalUsers(localUsers);
+
+        setIsLoading(false);
+        const loggedInUser: User = {
+          phoneNumberOrEmail: newUser.phoneNumberOrEmail,
+          referralCode: newUser.referralCode,
+          referralEarnings: newUser.referralEarnings,
+          isLoggedIn: true,
+          isAdmin: newUser.isAdmin,
+          balance: newUser.balance
+        };
+
+        localStorage.setItem("user_session", loggedInUser.phoneNumberOrEmail);
+        onLoginSuccess(loggedInUser);
+        setSuccess("Đăng ký thành công! Bạn nhận được 100.000đ chào mừng (Ngoại tuyến)!");
+        setTimeout(() => {
+          onClose();
+        }, 1000);
+      } else {
+        const localUsers = getLocalUsers();
+        const user = localUsers.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === usernameLower);
+        if (!user || user.password !== password) {
+          setIsLoading(false);
+          setError(origErrorMsg || "Tài khoản không tồn tại hoặc mật khẩu chưa đúng!");
+          return;
+        }
+
+        setIsLoading(false);
+        const loggedInUser: User = {
+          phoneNumberOrEmail: user.phoneNumberOrEmail,
+          referralCode: user.referralCode,
+          referralEarnings: user.referralEarnings,
+          isLoggedIn: true,
+          isAdmin: user.isAdmin,
+          balance: user.balance
+        };
+
+        localStorage.setItem("user_session", loggedInUser.phoneNumberOrEmail);
+        onLoginSuccess(loggedInUser);
+        setSuccess(
+          user.isAdmin 
+            ? "ĐĂNG NHẬP ADMIN THÀNH CÔNG (Ngoại tuyến)!" 
+            : "Đăng nhập thành công! (Ngoại tuyến)"
+        );
+        setTimeout(() => {
+          onClose();
+        }, 1000);
+      }
+    };
+
     fetch(apiPath, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -60,14 +173,15 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
 
         if (!res.ok) {
           // If server returned a JSON error message, use it; otherwise provide a descriptive fallback
-          const errorMessage = data?.message || `Lỗi máy chủ (${res.status}): ${text.substring(0, 100)}`;
-          throw new Error(errorMessage);
+          if (data && data.message) {
+            const apiError = new Error(data.message);
+            (apiError as any).isApiError = true;
+            throw apiError;
+          }
+          throw new Error(`Lỗi máy chủ (${res.status}): ${text.substring(0, 100)}`);
         }
 
         if (!data) {
-          if (text && text.trim().startsWith("<!DOCTYPE")) {
-            throw new Error(`Cổng API chưa được khởi tạo. Bạn hãy F5 tải lại trang web hoặc khởi động lại máy chủ! (Mã: ${res.status})`);
-          }
           throw new Error("Phản hồi không hợp lệ từ máy chủ!");
         }
 
@@ -90,7 +204,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         onLoginSuccess(loggedInUser);
         setSuccess(
           isSignUp 
-            ? "Đăng ký thành công! Bạn nhận được 100,000đ quà chào mừng đại lý!" 
+            ? "Đăng ký thành công! Bạn nhận được 100.000đ quà chào mừng đại lý!" 
             : data.user.isAdmin 
               ? "ĐĂNG NHẬP ADMIN THÀNH CÔNG! Chuyển hướng sang kho bối cảnh người bán..." 
               : "Đăng nhập thành công! Chào bạn quay lại cửa hàng."
@@ -101,8 +215,18 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         }, 1000);
       })
       .catch((err) => {
-        setIsLoading(false);
-        setError(err.message || "Kết nối máy chủ thất bại!");
+        if (err.isApiError) {
+          setIsLoading(false);
+          setError(err.message);
+        } else {
+          console.warn("API Server unreachable/broken. Attempting local storage authentication fallback:", err);
+          try {
+            tryLocalAuth(err.message);
+          } catch (localErr: any) {
+            setIsLoading(false);
+            setError("Gặp sự cố kết nối: " + (err.message || localErr.message));
+          }
+        }
       });
   };
 

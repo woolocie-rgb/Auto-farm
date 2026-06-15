@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Gamepad, Code, Terminal, Clipboard, Check, Play, ShieldAlert, Cpu, Layers, RefreshCw, Key } from "lucide-react";
+import { getLocalKeys, saveLocalKeys } from "../utils/dbFallback";
 
 interface KeyRecord {
   key: string;
@@ -26,15 +27,20 @@ export default function APIAppIntegration() {
 
   const fetchKeysList = async () => {
     setIsLoadingKeys(true);
+    let success = false;
     try {
       const res = await fetch("/api/keys");
       const data = await res.json();
       if (data.success) {
         setKeysList(data.keys);
+        success = true;
       }
     } catch (err) {
-      console.error("Error fetching live keys:", err);
+      console.warn("Error fetching live keys, loading local fallback keys:", err);
     } finally {
+      if (!success) {
+        setKeysList(getLocalKeys());
+      }
       setIsLoadingKeys(false);
     }
   };
@@ -55,9 +61,65 @@ export default function APIAppIntegration() {
     setTimeout(() => setCopiedEndpoint(false), 1500);
   };
 
+  const tryLocalVerify = () => {
+    const dbKeys = getLocalKeys();
+    const foundIndex = dbKeys.findIndex(k => k.key.trim() === testKey.trim());
+    
+    if (foundIndex === -1) {
+      return {
+        success: false,
+        message: "Mã KEY không tồn tại trên hệ thống (Dự phòng). Vui lòng kiểm tra lại!"
+      };
+    }
+    
+    const keyRecord = dbKeys[foundIndex];
+    
+    // Check Expiration
+    if (keyRecord.expiresAt) {
+      const expiryDate = new Date(keyRecord.expiresAt);
+      if (expiryDate.getTime() < Date.now()) {
+        return {
+          success: false,
+          message: `KEY này đã HẾT HẠN sử dụng vào ngày ${expiryDate.toLocaleString("vi-VN")}!`
+        };
+      }
+    }
+    
+    // Check HWID lock
+    if (!keyRecord.hwid) {
+      keyRecord.hwid = testHwid;
+      dbKeys[foundIndex] = keyRecord;
+      saveLocalKeys(dbKeys);
+      
+      return {
+        success: true,
+        message: "Kích hoạt phần mềm thành công trên thiết bị hiện tại (Khóa HWID dự phòng)!",
+        tier: keyRecord.tier,
+        expiresAt: keyRecord.expiresAt ? new Date(keyRecord.expiresAt).toLocaleString("vi-VN") : "Vĩnh viễn",
+        hwid: keyRecord.hwid
+      };
+    }
+    
+    if (keyRecord.hwid.trim() === testHwid.trim()) {
+      return {
+        success: true,
+        message: "Xác thực KEY thành công! Bạn đang sử dụng đúng thiết bị đăng ký (Dự phòng).",
+        tier: keyRecord.tier,
+        expiresAt: keyRecord.expiresAt ? new Date(keyRecord.expiresAt).toLocaleString("vi-VN") : "Vĩnh viễn",
+        hwid: keyRecord.hwid
+      };
+    } else {
+      return {
+        success: false,
+        message: `Lỗi: KEY này đã được kích hoạt và khóa bởi một máy tính khác!\n\nHWID đăng ký: ${keyRecord.hwid}\nHWID của bạn: ${testHwid}\n\nVui lòng hệ Admin để xin reset HWID hoặc mua một KEY mới!`
+      };
+    }
+  };
+
   const handleRunVerifyTest = async () => {
     setIsTesting(true);
     setTestResponse(null);
+    let success = false;
     try {
       const response = await fetch("/api/keys/verify", {
         method: "POST",
@@ -69,14 +131,28 @@ export default function APIAppIntegration() {
         status: response.status,
         data
       });
+      success = true;
       // Refresh the database status
       fetchKeysList();
     } catch (error: any) {
-      setTestResponse({
-        status: 500,
-        data: { success: false, message: "Không thể kết nối đến server. Vui lòng kiểm tra server Node.js!", error: error.message }
-      });
+      console.warn("Live API key verification failed, attempting offline validation fallback:", error);
     } finally {
+      if (!success) {
+        try {
+          const localResult = tryLocalVerify();
+          setTestResponse({
+            status: localResult.success ? 200 : 403,
+            data: localResult
+          });
+          // Refresh key list
+          fetchKeysList();
+        } catch (localErr: any) {
+          setTestResponse({
+            status: 500,
+            data: { success: false, message: "Lỗi kiểm tra dự phòng", error: localErr.message }
+          });
+        }
+      }
       setIsTesting(false);
     }
   };
