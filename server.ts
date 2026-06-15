@@ -281,7 +281,7 @@ async function startServer() {
       referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
       referralEarnings: 50000,
       balance: 100000, // 100k welcome test balance
-      isAdmin: username === "0334410858" && password === "Quocloc@21"
+      isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21"
     };
 
     users.push(newUser);

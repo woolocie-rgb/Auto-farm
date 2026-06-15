@@ -53,21 +53,37 @@ export default function App() {
     }
   ]);
 
-  // Default logged-in user state, will be hydrated from server on load
-  const [user, setUser] = useState<User>({
-    phoneNumberOrEmail: "woolocie@gmail.com",
-    referralCode: "AFF-WOOLO",
-    referralEarnings: 2450000,
-    isLoggedIn: true,
-    balance: 0, // Hydrated from server
+  // Default logged-in user state, will be hydrated from server on load.
+  // We initialize from localStorage if it exists so we don't flash, otherwise start logged-out.
+  const [user, setUser] = useState<User>(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem("user_session") : null;
+    if (saved) {
+      return {
+        phoneNumberOrEmail: saved,
+        referralCode: "AFF-" + saved.split("@")[0].toUpperCase().substring(0, 5),
+        referralEarnings: 0,
+        isLoggedIn: true,
+        balance: 0,
+      };
+    }
+    return {
+      phoneNumberOrEmail: "",
+      referralCode: "",
+      referralEarnings: 0,
+      isLoggedIn: false,
+      balance: 0,
+    };
   });
 
   // Load persistent user data on mount
   useEffect(() => {
-    const savedSession = localStorage.getItem("user_session") || "woolocie@gmail.com";
+    const savedSession = localStorage.getItem("user_session");
     if (savedSession) {
       fetch(`/api/users/get?username=${encodeURIComponent(savedSession)}`)
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error("Session invalid");
+          return res.json();
+        })
         .then((data) => {
           if (data.success && data.user) {
             setUser({
@@ -78,9 +94,29 @@ export default function App() {
               isAdmin: data.user.isAdmin,
               balance: data.user.balance
             });
+          } else {
+            // Clear invalid session
+            localStorage.removeItem("user_session");
+            setUser({
+              phoneNumberOrEmail: "",
+              referralCode: "",
+              referralEarnings: 0,
+              isLoggedIn: false,
+              balance: 0,
+            });
           }
         })
-        .catch((err) => console.error("Failed to load user state from server:", err));
+        .catch((err) => {
+          console.error("Failed to load user state from server:", err);
+          localStorage.removeItem("user_session");
+          setUser({
+            phoneNumberOrEmail: "",
+            referralCode: "",
+            referralEarnings: 0,
+            isLoggedIn: false,
+            balance: 0,
+          });
+        });
     }
   }, []);
 
@@ -298,6 +334,29 @@ export default function App() {
         {/* VIEWMODE 1: USER CONSOLE */}
         {viewMode === "user" && (
           <div className="space-y-12 pb-16">
+            {user.isLoggedIn && ["0334410858", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+                <div className="bg-gradient-to-r from-emerald-555 from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-4 sm:p-5 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 text-left border-2 border-emerald-400">
+                  <div className="space-y-1">
+                    <h4 className="font-black text-sm sm:text-base flex items-center gap-2">
+                      <span className="bg-white text-emerald-700 text-[10px] uppercase font-black px-2 py-0.5 rounded-full shadow">TÀI KHOẢN THỬ NGHIỆM</span>
+                      <span>Hệ Thống Tiền Thử Nghiệm Đã Được Kích Hoạt Miễn Phí!</span>
+                    </h4>
+                    <p className="text-[11px] text-emerald-50/95 font-semibold leading-relaxed">
+                      Xin chào Admin/Thử nghiệm <strong>{user.phoneNumberOrEmail}</strong>. Bạn đang chạy thử nghiệm hệ thống web phát Key và xé túi mù tự động Buyplay. Bất cứ khi nào cần kiểm thử, nhấp nút nạp nhanh miễn phí bên cạnh để cộng thêm tiền ngay!
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleUpdateBalance(user.balance + 10000000);
+                    }}
+                    className="bg-white hover:bg-slate-50 text-emerald-700 font-extrabold text-xs px-5 py-3 rounded-2xl shrink-0 cursor-pointer shadow-lg hover:scale-102 active:scale-95 transition-all flex items-center gap-1.5"
+                  >
+                    <span>🎁 Bơm 10.000.000 đ Thử Nghiệm (Miễn Phí)</span>
+                  </button>
+                </div>
+              </div>
+            )}
             
             {/* TAB: PRODUCTS (TRANG CHỦ / MUA KEY) */}
             {activeTab === "products" && (

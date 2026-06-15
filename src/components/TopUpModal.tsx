@@ -160,9 +160,28 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
                     </div>
 
                     {/* Simulation alert */}
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-[10.5px] text-emerald-900 font-semibold leading-relaxed">
-                      🔥 <strong>Lợi thế test nhanh</strong>: Chọn mệnh giá ở trên rồi ấn nút nạp để biến hóa ví từ <strong className="text-red-650 text-red-600">0 đ</strong> lên tài chính dồi dào cày game tức thì!
-                    </div>
+                    {currentUser?.phoneNumberOrEmail && ["0334410858", "woolocie@gmail.com"].includes(currentUser.phoneNumberOrEmail.trim().toLowerCase()) ? (
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-[10.5px] text-red-900 font-bold leading-relaxed space-y-2">
+                        <div>
+                          🌟 <strong>CHẾ ĐỘ THỬ NGHIỆM ADMIN</strong>: Chức năng nạp tài khoản đặc biệt cho nhà phát triển đã được mở khóa! Nhấp nút dưới đây để bơm siêu số dư thử nghiệm tức sau 1 nốt nhạc.
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onAddFunds(99999000);
+                            setSuccessAmt(99999000);
+                            setIsSuccess(true);
+                          }}
+                          className="w-full bg-red-650 hover:bg-red-700 text-white font-black py-2 rounded-lg text-center shadow-md transition-all active:scale-95 cursor-pointer block text-xs"
+                        >
+                          🎁 Bơm Ngay 99.999.000 đ Thử Nghiệm Gốc
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-[10.5px] text-emerald-900 font-semibold leading-relaxed">
+                        🔥 <strong>Lợi thế test nhanh</strong>: Chọn mệnh giá ở trên rồi ấn nút nạp để biến hóa ví từ <strong className="text-red-650 text-red-600">0 đ</strong> lên tài chính dồi dào cày game tức thì!
+                      </div>
+                    )}
 
                     <button
                       type="submit"

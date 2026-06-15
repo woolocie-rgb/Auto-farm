@@ -280,8 +280,11 @@ export default function Header({
 
                   {/* Info Column containing Username and Red Underlined Balance like Image 1 */}
                   <div className="hidden md:flex flex-col text-left">
-                    <span className="text-xs sm:text-[13px] font-black text-slate-800 leading-none group-hover:text-emerald-600 transition-colors">
-                      {user.phoneNumberOrEmail.split("@")[0]}
+                    <span className="text-xs sm:text-[13px] font-black text-slate-800 leading-none group-hover:text-emerald-600 transition-colors flex items-center gap-1">
+                      <span>{user.phoneNumberOrEmail.split("@")[0]}</span>
+                      {["0334410858", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
+                        <span className="text-[7.5px] bg-red-100 text-red-650 text-red-600 px-1 py-0.5 rounded font-black tracking-tighter shrink-0">ADMIN/TEST</span>
+                      )}
                     </span>
                     <span className="text-red-500 text-xs sm:text-[13.5px] font-black font-mono leading-none mt-1 border-b-2 border-red-500 border-dashed w-max inline-block">
                       {user.balance.toLocaleString("vi-VN")} đ
