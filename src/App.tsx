@@ -277,7 +277,8 @@ export default function App() {
       body: JSON.stringify({
         key: keyData.keyDelivered,
         tier,
-        buyerEmail: user.phoneNumberOrEmail || "woolocie@gmail.com"
+        buyerEmail: user.phoneNumberOrEmail || "woolocie@gmail.com",
+        price: keyData.price
       })
     }).catch(err => console.error("Error sending key to server:", err));
   };
@@ -320,9 +321,29 @@ export default function App() {
       body: JSON.stringify({
         key: newOrder.keyDelivered,
         tier,
-        buyerEmail: newOrder.buyerEmail || user.phoneNumberOrEmail || "woolocie@gmail.com"
+        buyerEmail: newOrder.buyerEmail || user.phoneNumberOrEmail || "woolocie@gmail.com",
+        price: newOrder.price
       })
     }).catch(err => console.error("Error sending key to server:", err));
+
+    // Offline local storage referral commission support
+    try {
+      const localUsers = getLocalUsers();
+      const buyerEmailClean = (newOrder.buyerEmail || user.phoneNumberOrEmail || "").trim().toLowerCase();
+      const buyerObj = localUsers.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === buyerEmailClean);
+      if (buyerObj && buyerObj.referredBy) {
+        const referrerIndex = localUsers.findIndex(u => u.referralCode.trim().toLowerCase() === buyerObj.referredBy!.trim().toLowerCase());
+        if (referrerIndex !== -1) {
+          const commAmt = Math.round(newOrder.price * 0.1);
+          localUsers[referrerIndex].referralEarnings += commAmt;
+          localUsers[referrerIndex].balance += commAmt;
+          saveLocalUsers(localUsers);
+          console.log("[Offline localUsers] Added offline referral commission:", commAmt);
+        }
+      }
+    } catch (localCommErr) {
+      console.error("Failed to process local fallback commission of referred user:", localCommErr);
+    }
     
     // Add referral earnings if the buyer used affiliate
     if (newOrder.referralCommissionAmount) {

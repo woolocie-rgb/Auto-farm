@@ -68,6 +68,7 @@ interface UserRecord {
   referralEarnings: number;
   balance: number;
   isAdmin: boolean;
+  referredBy?: string;
 }
 
 function loadUsers(): UserRecord[] {
@@ -109,6 +110,65 @@ function saveUsers(users: UserRecord[]) {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
   } catch (error) {
     console.error("Failed to save users to disk:", error);
+  }
+}
+
+// Deposit requests backend store and tracking
+const DEPOSITS_FILE = path.join(process.cwd(), "deposits.db.json");
+
+interface DepositRecord {
+  id: string;
+  phoneNumberOrEmail: string;
+  amount: number;
+  paymentMethod: string;
+  memo: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  processedAt: string | null;
+}
+
+function loadDeposits(): DepositRecord[] {
+  try {
+    if (fs.existsSync(DEPOSITS_FILE)) {
+      const content = fs.readFileSync(DEPOSITS_FILE, "utf-8");
+      return JSON.parse(content);
+    }
+  } catch (error) {
+    console.error("Error reading deposits file, resetting:", error);
+  }
+
+  const defaultDeposits: DepositRecord[] = [
+    {
+      id: "DEP-A16BK9",
+      phoneNumberOrEmail: "woolocie@gmail.com",
+      amount: 200000,
+      paymentMethod: "qr",
+      memo: "BP WOOLOCIE",
+      status: "approved",
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      processedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: "DEP-KLZ82X",
+      phoneNumberOrEmail: "0334410858",
+      amount: 500000,
+      paymentMethod: "momo",
+      memo: "BP 0334410858",
+      status: "pending",
+      createdAt: new Date().toISOString(),
+      processedAt: null
+    }
+  ];
+
+  fs.writeFileSync(DEPOSITS_FILE, JSON.stringify(defaultDeposits, null, 2), "utf-8");
+  return defaultDeposits;
+}
+
+function saveDeposits(deposits: DepositRecord[]) {
+  try {
+    fs.writeFileSync(DEPOSITS_FILE, JSON.stringify(deposits, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Failed to save deposits to disk:", error);
   }
 }
 
@@ -220,6 +280,131 @@ async function startServer() {
   });
 
   // User Endpoints
+  // Deposit Endpoints for secure credit workflow
+  app.get("/api/deposits", (req, res) => {
+    try {
+      const deposits = loadDeposits();
+      res.json({ success: true, deposits });
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
+  app.post("/api/deposits/create", (req, res) => {
+    try {
+      const { phoneNumberOrEmail, amount, paymentMethod, memo } = req.body;
+      if (!phoneNumberOrEmail || !amount || !paymentMethod) {
+        return res.status(400).json({ success: false, message: "Thiếu thông tin nạp tiền" });
+      }
+
+      const deposits = loadDeposits();
+      const id = "DEP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      const isUserAdmin = ["0334410858", "woolocie@gmail.com"].includes(phoneNumberOrEmail.trim().toLowerCase());
+      
+      const newDeposit: DepositRecord = {
+        id,
+        phoneNumberOrEmail: phoneNumberOrEmail.trim(),
+        amount: Number(amount),
+        paymentMethod,
+        memo: memo || `BP ${phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "")}`,
+        status: isUserAdmin ? "approved" : "pending",
+        createdAt: new Date().toISOString(),
+        processedAt: isUserAdmin ? new Date().toISOString() : null
+      };
+
+      // If requested by an admin, process balance injection immediately!
+      if (isUserAdmin) {
+        const users = loadUsers();
+        const userIndex = users.findIndex(u => u.phoneNumberOrEmail.trim().toLowerCase() === phoneNumberOrEmail.trim().toLowerCase());
+        if (userIndex !== -1) {
+          users[userIndex].balance += Number(amount);
+          saveUsers(users);
+        }
+      }
+
+      deposits.push(newDeposit);
+      saveDeposits(deposits);
+
+      res.json({ 
+        success: true, 
+        message: isUserAdmin 
+          ? "Đã cộng thử nghiệm trực tiếp cho Admin!" 
+          : "Gửi yêu cầu nạp tiền chờ duyệt thành công!",
+        deposit: newDeposit 
+      });
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
+  app.post("/api/deposits/approve", (req, res) => {
+    try {
+      const { id } = req.body;
+      if (!id) {
+        return res.status(400).json({ success: false, message: "Thiếu ID yêu cầu" });
+      }
+
+      const deposits = loadDeposits();
+      const depositIndex = deposits.findIndex(d => d.id === id);
+      if (depositIndex === -1) {
+        return res.status(404).json({ success: false, message: "Không tìm thấy yêu cầu nạp tiền" });
+      }
+
+      const deposit = deposits[depositIndex];
+      if (deposit.status !== "pending") {
+        return res.status(400).json({ success: false, message: "Yêu cầu này đã được xử lý từ trước!" });
+      }
+
+      // Update state
+      deposit.status = "approved";
+      deposit.processedAt = new Date().toISOString();
+      deposits[depositIndex] = deposit;
+      saveDeposits(deposits);
+
+      // Increase user balance
+      const users = loadUsers();
+      const userIndex = users.findIndex(u => u.phoneNumberOrEmail.trim().toLowerCase() === deposit.phoneNumberOrEmail.trim().toLowerCase());
+      if (userIndex !== -1) {
+        users[userIndex].balance += deposit.amount;
+        saveUsers(users);
+      }
+
+      res.json({ success: true, message: "Duyệt nạp tiền thành công! Đã cộng số dư cho người dùng." });
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
+  app.post("/api/deposits/reject", (req, res) => {
+    try {
+      const { id } = req.body;
+      if (!id) {
+        return res.status(400).json({ success: false, message: "Thiếu ID yêu cầu" });
+      }
+
+      const deposits = loadDeposits();
+      const depositIndex = deposits.findIndex(d => d.id === id);
+      if (depositIndex === -1) {
+        return res.status(404).json({ success: false, message: "Không tìm thấy yêu cầu nạp tiền" });
+      }
+
+      const deposit = deposits[depositIndex];
+      if (deposit.status !== "pending") {
+        return res.status(400).json({ success: false, message: "Yêu cầu này đã được xử lý từ trước!" });
+      }
+
+      deposit.status = "rejected";
+      deposit.processedAt = new Date().toISOString();
+      deposits[depositIndex] = deposit;
+      saveDeposits(deposits);
+
+      res.json({ success: true, message: "Đã hủy bỏ yêu cầu nạp tiền!" });
+    } catch (e: any) {
+      res.status(500).json({ success: false, message: e.message });
+    }
+  });
+
   app.get("/api/users/get", (req, res) => {
     const { username } = req.query;
     if (!username) {
@@ -277,7 +462,7 @@ async function startServer() {
   app.post("/api/users/register", (req, res) => {
     try {
       console.log("[SERVERAPI] POST /api/users/register called body:", req.body);
-      const { username, password } = req.body;
+      const { username, password, referredBy } = req.body;
       if (!username || !password) {
         console.warn("[SERVERAPI] Missing register username or password");
         return res.status(400).json({ success: false, message: "Thiếu tài khoản hoặc mật khẩu" });
@@ -289,13 +474,23 @@ async function startServer() {
         return res.status(400).json({ success: false, message: "Tài khoản/SĐT này đã tồn tại!" });
       }
 
+      let validReferrerCode: string | undefined = undefined;
+      if (referredBy && referredBy.trim()) {
+        const matched = users.find(u => u.referralCode.trim().toLowerCase() === referredBy.trim().toLowerCase());
+        if (!matched) {
+          return res.status(400).json({ success: false, message: "Mã giới thiệu không tồn tại trên hệ thống!" });
+        }
+        validReferrerCode = matched.referralCode;
+      }
+
       const newUser: UserRecord = {
         phoneNumberOrEmail: username,
         password: password,
         referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
-        referralEarnings: 50000,
+        referralEarnings: 0,
         balance: 100000, // 100k welcome test balance
-        isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21"
+        isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21",
+        referredBy: validReferrerCode
       };
 
       users.push(newUser);
@@ -316,7 +511,7 @@ async function startServer() {
 
   // API 2: Create a newly purchased or won Key from the website
   app.post("/api/keys/create", (req, res) => {
-    const { key, tier, buyerEmail } = req.body;
+    const { key, tier, buyerEmail, price } = req.body;
 
     if (!key || !tier) {
       return res.status(400).json({ success: false, message: "Missing required fields: key, tier" });
@@ -327,6 +522,22 @@ async function startServer() {
     // Check if key already exists to prevent duplicate entries
     if (keys.some(k => k.key === key)) {
       return res.status(400).json({ success: false, message: "Key already registered on server!" });
+    }
+
+    // Process referral commission if any
+    if (buyerEmail && price && Number(price) > 0) {
+      const users = loadUsers();
+      const buyer = users.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === buyerEmail.trim().toLowerCase());
+      if (buyer && buyer.referredBy) {
+        const referrerIndex = users.findIndex(u => u.referralCode.trim().toLowerCase() === buyer.referredBy!.trim().toLowerCase());
+        if (referrerIndex !== -1) {
+          const commAmount = Math.round(Number(price) * 0.1);
+          users[referrerIndex].referralEarnings += commAmount;
+          users[referrerIndex].balance += commAmount;
+          saveUsers(users);
+          console.log(`[REFERRAL COMMISSION] Added ${commAmount} VNĐ (10% of ${price}) to referrer ${users[referrerIndex].phoneNumberOrEmail} (Code: ${buyer.referredBy}) because ${buyerEmail} bought a key`);
+        }
+      }
     }
 
     let durationMs = 0;

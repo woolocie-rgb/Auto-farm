@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Lock, Mail, Phone, ShieldCheck, Sparkles, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { X, Lock, Mail, Phone, ShieldCheck, Sparkles, Send, CheckCircle2, AlertCircle, Gift } from "lucide-react";
 import { User } from "../types";
-import { getLocalUsers, saveLocalUsers } from "../utils/dbFallback";
+import { getLocalUsers, saveLocalUsers, LocalUserRecord } from "../utils/dbFallback";
 
 interface AuthModalProps {
   onClose: () => void;
@@ -14,6 +14,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
   const [inputValue, setInputValue] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [referralCodeInput, setReferralCodeInput] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -94,13 +95,27 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
           return;
         }
 
-        const newUser = {
+        let localReferredBy: string | undefined = undefined;
+        if (referralCodeInput.trim()) {
+          const matchedReferrer = localUsers.find(
+            u => u.referralCode.trim().toLowerCase() === referralCodeInput.trim().toLowerCase()
+          );
+          if (!matchedReferrer) {
+            setIsLoading(false);
+            setError("Mã giới thiệu không tồn tại trên hệ thống!");
+            return;
+          }
+          localReferredBy = matchedReferrer.referralCode;
+        }
+
+        const newUser: LocalUserRecord = {
           phoneNumberOrEmail: inputValue.trim(),
           password,
           referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
-          referralEarnings: 50000,
+          referralEarnings: 0,
           balance: 100000,
-          isAdmin: false
+          isAdmin: false,
+          referredBy: localReferredBy
         };
 
         localUsers.push(newUser);
@@ -127,7 +142,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         const user = localUsers.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === usernameLower);
         if (!user) {
           setIsLoading(false);
-          setError("Tài khoản chưa tồn tại trên trình duyệt này! Hãy bấm 'Tạo Đại Lý Ngay' bên dưới để đăng ký tài khoản mới miễn phí.");
+          setError("Tài khoản chưa tồn tại trên trình duyệt này! Hãy bấm 'Tạo tài khoản mới' bên dưới để đăng ký tài khoản mới miễn phí.");
           return;
         }
         if (user.password !== password) {
@@ -162,7 +177,11 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
     fetch(apiPath, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: inputValue, password })
+      body: JSON.stringify({ 
+        username: inputValue, 
+        password,
+        ...(isSignUp ? { referredBy: referralCodeInput } : {})
+      })
     })
       .then(async (res) => {
         const text = await res.text();
@@ -262,11 +281,8 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
               <ShieldCheck className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-black text-slate-900 tracking-tight">
-              {isSignUp ? "Tạo Tài Khoản Đại Lý" : "Đăng Nhập Cổng OTP"}
+              {isSignUp ? "Tạo Tài Khoản Mới" : "Đăng Nhập Tài Khoản"}
             </h3>
-            <p className="text-xs text-slate-500 mt-1 font-medium">
-              {isSignUp ? "Đăng ký dán link nhận ngay 50.000đ hoa hồng" : "Tham gia cộng đồng đại lý phát Key sấm sét Buyplay"}
-            </p>
           </div>
 
           {/* Switch Tab */}
@@ -283,7 +299,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
               }`}
             >
               <Mail className="w-3.5 h-3.5" />
-              <span>Phương án Email</span>
+              <span>Đăng nhập Email</span>
             </button>
             <button
               type="button"
@@ -344,23 +360,41 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
 
             {/* Confirm password if SignUp */}
             {isSignUp && (
-              <div>
-                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
-                  Nhập lại mật khẩu
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    placeholder="Mật khẩu nhập lại đồng bộ"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-850 outline-none transition-colors"
-                  />
+              <>
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                    Nhập lại mật khẩu
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      placeholder="Mật khẩu nhập lại đồng bộ"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-850 outline-none transition-colors"
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1">
+                    Mã giới thiệu (Không bắt buộc)
+                  </label>
+                  <div className="relative">
+                    <Gift className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Mã giới thiệu ví dụ: AFF-WOOLO"
+                      value={referralCodeInput}
+                      onChange={(e) => setReferralCodeInput(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-850 outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             {/* Error message */}
@@ -400,14 +434,15 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
                 setInputValue("");
                 setPassword("");
                 setConfirmPassword("");
+                setReferralCodeInput("");
                 setError("");
                 setSuccess("");
               }}
             >
               {isSignUp ? (
-                <span>Đã là người cũ đối tác? <strong className="text-emerald-600 font-extrabold hover:underline">Vào Đăng Nhập &rarr;</strong></span>
+                <span>Đã có tài khoản? <strong className="text-emerald-600 font-extrabold hover:underline">Vào Đăng Nhập &rarr;</strong></span>
               ) : (
-                <span>Độc giả chưa có tài khoản? <strong className="text-emerald-600 font-extrabold hover:underline">Tạo Đại Lý Ngay &rarr;</strong></span>
+                <span>Chưa có tài khoản? <strong className="text-emerald-600 font-extrabold hover:underline">Tạo tài khoản mới &rarr;</strong></span>
               )}
             </button>
           </div>

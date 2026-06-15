@@ -7,6 +7,7 @@ export interface LocalUserRecord {
   referralEarnings: number;
   balance: number;
   isAdmin: boolean;
+  referredBy?: string;
 }
 
 export interface LocalKeyRecord {
@@ -16,6 +17,17 @@ export interface LocalKeyRecord {
   createdAt: string;
   expiresAt: string | null;
   buyerEmail: string;
+}
+
+export interface LocalDepositRecord {
+  id: string;
+  phoneNumberOrEmail: string;
+  amount: number;
+  paymentMethod: string;
+  memo: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  processedAt: string | null;
 }
 
 export function initLocalDB() {
@@ -64,6 +76,32 @@ export function initLocalDB() {
     ];
     localStorage.setItem("local_keys_db", JSON.stringify(defaultKeys));
   }
+
+  if (!localStorage.getItem("local_deposits_db")) {
+    const defaultDeposits: LocalDepositRecord[] = [
+      {
+        id: "DEP-A16BK9",
+        phoneNumberOrEmail: "woolocie@gmail.com",
+        amount: 200000,
+        paymentMethod: "qr",
+        memo: "BP WOOLOCIE",
+        status: "approved",
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        processedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: "DEP-KLZ82X",
+        phoneNumberOrEmail: "0334410858",
+        amount: 500000,
+        paymentMethod: "momo",
+        memo: "BP 0334410858",
+        status: "pending",
+        createdAt: new Date().toISOString(),
+        processedAt: null
+      }
+    ];
+    localStorage.setItem("local_deposits_db", JSON.stringify(defaultDeposits));
+  }
 }
 
 export function getLocalUsers(): LocalUserRecord[] {
@@ -84,4 +122,14 @@ export function getLocalKeys(): LocalKeyRecord[] {
 
 export function saveLocalKeys(keys: LocalKeyRecord[]) {
   localStorage.setItem("local_keys_db", JSON.stringify(keys));
+}
+
+export function getLocalDeposits(): LocalDepositRecord[] {
+  initLocalDB();
+  const raw = localStorage.getItem("local_deposits_db");
+  return raw ? JSON.parse(raw) : [];
+}
+
+export function saveLocalDeposits(deposits: LocalDepositRecord[]) {
+  localStorage.setItem("local_deposits_db", JSON.stringify(deposits));
 }

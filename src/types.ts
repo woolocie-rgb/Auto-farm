@@ -21,6 +21,7 @@ export interface User {
   isLoggedIn: boolean;
   isAdmin?: boolean;
   balance: number; // In-app top-up Balance in VNĐ for purchasing keys & opening lucky blind bags
+  referredBy?: string;
 }
 
 export interface Order {
