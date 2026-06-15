@@ -125,9 +125,14 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       } else {
         const localUsers = getLocalUsers();
         const user = localUsers.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === usernameLower);
-        if (!user || user.password !== password) {
+        if (!user) {
           setIsLoading(false);
-          setError(origErrorMsg || "Tài khoản không tồn tại hoặc mật khẩu chưa đúng!");
+          setError("Tài khoản chưa tồn tại trên trình duyệt này! Hãy bấm 'Tạo Đại Lý Ngay' bên dưới để đăng ký tài khoản mới miễn phí.");
+          return;
+        }
+        if (user.password !== password) {
+          setIsLoading(false);
+          setError("Mật khẩu không chính xác! Vui lòng kiểm tra lại.");
           return;
         }
 
