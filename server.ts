@@ -249,44 +249,63 @@ async function startServer() {
   });
 
   app.post("/api/users/login", (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: "Vui lòng nhập tài khoản và mật khẩu" });
+    try {
+      console.log("[SERVERAPI] POST /api/users/login called body:", req.body);
+      const { username, password } = req.body;
+      if (!username || !password) {
+        console.warn("[SERVERAPI] Missing login username or password");
+        return res.status(400).json({ success: false, message: "Vui lòng nhập tài khoản và mật khẩu" });
+      }
+      const users = loadUsers();
+      const user = users.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
+      if (!user) {
+        console.warn(`[SERVERAPI] User not found: ${username}`);
+        return res.status(404).json({ success: false, message: "Tài khoản không tồn tại trên hệ thống!" });
+      }
+      if (user.password !== password) {
+        console.warn(`[SERVERAPI] Incorrect password for user: ${username}`);
+        return res.status(401).json({ success: false, message: "Mật khẩu không chính xác!" });
+      }
+      console.log(`[SERVERAPI] Login successful for: ${username}`);
+      return res.json({ success: true, user });
+    } catch (apiErr: any) {
+      console.error("[SERVERAPI] Error in POST /api/users/login:", apiErr);
+      return res.status(500).json({ success: false, message: "Lỗi hệ thống đăng nhập: " + apiErr.message });
     }
-    const users = loadUsers();
-    const user = users.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
-    if (!user) {
-      return res.status(404).json({ success: false, message: "Tài khoản không tồn tại trên hệ thống!" });
-    }
-    if (user.password !== password) {
-      return res.status(401).json({ success: false, message: "Mật khẩu không chính xác!" });
-    }
-    res.json({ success: true, user });
   });
 
   app.post("/api/users/register", (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: "Thiếu tài khoản hoặc mật khẩu" });
-    }
-    const users = loadUsers();
-    const exists = users.some(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
-    if (exists) {
-      return res.status(400).json({ success: false, message: "Tài khoản/SĐT này đã tồn tại!" });
-    }
+    try {
+      console.log("[SERVERAPI] POST /api/users/register called body:", req.body);
+      const { username, password } = req.body;
+      if (!username || !password) {
+        console.warn("[SERVERAPI] Missing register username or password");
+        return res.status(400).json({ success: false, message: "Thiếu tài khoản hoặc mật khẩu" });
+      }
+      const users = loadUsers();
+      const exists = users.some(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
+      if (exists) {
+        console.warn(`[SERVERAPI] Registration user already exists: ${username}`);
+        return res.status(400).json({ success: false, message: "Tài khoản/SĐT này đã tồn tại!" });
+      }
 
-    const newUser: UserRecord = {
-      phoneNumberOrEmail: username,
-      password: password,
-      referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
-      referralEarnings: 50000,
-      balance: 100000, // 100k welcome test balance
-      isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21"
-    };
+      const newUser: UserRecord = {
+        phoneNumberOrEmail: username,
+        password: password,
+        referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
+        referralEarnings: 50000,
+        balance: 100000, // 100k welcome test balance
+        isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21"
+      };
 
-    users.push(newUser);
-    saveUsers(users);
-    res.json({ success: true, user: newUser });
+      users.push(newUser);
+      saveUsers(users);
+      console.log(`[SERVERAPI] Successfully registered new user: ${username}`);
+      return res.json({ success: true, user: newUser });
+    } catch (apiErr: any) {
+      console.error("[SERVERAPI] Error in POST /api/users/register:", apiErr);
+      return res.status(500).json({ success: false, message: "Lỗi hệ thống đăng ký: " + apiErr.message });
+    }
   });
 
   // API 1: Fetch all keys (Admin & display purposes on the dashboard)

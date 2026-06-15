@@ -49,8 +49,9 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       .then(async (res) => {
         const text = await res.text();
         let data: any = null;
+        
         try {
-          if (text) {
+          if (text && text.trim().startsWith("{")) {
             data = JSON.parse(text);
           }
         } catch (e) {
@@ -58,12 +59,16 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
         }
 
         if (!res.ok) {
-          const errorMessage = data?.message || (isSignUp ? "Tài khoản này đã tồn tại hoặc lỗi đăng ký!" : "Tài khoản không tồn tại hoặc mật khẩu chưa đúng!");
+          // If server returned a JSON error message, use it; otherwise provide a descriptive fallback
+          const errorMessage = data?.message || `Lỗi máy chủ (${res.status}): ${text.substring(0, 100)}`;
           throw new Error(errorMessage);
         }
 
         if (!data) {
-          throw new Error("Phản hồi rỗng từ máy chủ!");
+          if (text && text.trim().startsWith("<!DOCTYPE")) {
+            throw new Error(`Cổng API chưa được khởi tạo. Bạn hãy F5 tải lại trang web hoặc khởi động lại máy chủ! (Mã: ${res.status})`);
+          }
+          throw new Error("Phản hồi không hợp lệ từ máy chủ!");
         }
 
         return data;
