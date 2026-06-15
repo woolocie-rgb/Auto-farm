@@ -276,28 +276,28 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
     <div className="space-y-8 max-w-7xl mx-auto text-left">
       
       {/* SECTION BANNER - Visual Highlighting the Seller Backoffice */}
-      <div className="bg-gradient-to-r from-sky-600 via-indigo-700 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg shadow-indigo-900/10">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-sky-400/20 rounded-full blur-3xl" />
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-700 to-teal-900 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg shadow-teal-900/10">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <span className="text-[9px] bg-sky-500/35 border border-sky-400/40 px-3 py-1 rounded-full uppercase font-black tracking-widest text-sky-200">
+            <span className="text-[9px] bg-emerald-500/35 border border-emerald-400/40 px-3 py-1 rounded-full uppercase font-black tracking-widest text-emerald-250 text-emerald-200">
               TRÌNH QUẢN TRỊ VIÊN BÁN KEY
             </span>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-2">
-              <Gamepad2 className="w-6 h-6 text-indigo-300" />
+              <Gamepad2 className="w-6 h-6 text-emerald-300" />
               <span>Giao Diện Monitor Người Bán (Seller Console)</span>
             </h2>
-            <p className="text-xs text-sky-100/90 max-w-2xl font-medium leading-relaxed">
+            <p className="text-xs text-emerald-100/90 max-w-2xl font-medium leading-relaxed">
               Trang riêng dành cho chủ shop điều khiển. Giúp kiểm quét dòng tiền khách thanh toán mua Key tự động treo máy dọn shop nông trại trong game. Kiểm soát doanh số đa chiều theo thời khoảng <strong>Ngày, Tháng, Năm</strong>.
             </p>
           </div>
           
           <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-center sm:text-left">
-            <span className="text-[10px] text-sky-200 block font-bold leading-none uppercase">Doanh thu trọn đời shop</span>
+            <span className="text-[10px] text-emerald-200 block font-bold leading-none uppercase">Doanh thu trọn đời shop</span>
             <div className="text-2xl font-black font-mono tracking-tight mt-1 text-white">
               {totalAllTimeRevenue.toLocaleString("vi-VN")} đ
             </div>
-            <span className="text-[9px] text-sky-300 block mt-0.5">Thời gian thực, tự đối soát ngân hàng</span>
+            <span className="text-[9px] text-emerald-300 block mt-0.5">Thời gian thực, tự đối soát ngân hàng</span>
           </div>
         </div>
       </div>
@@ -307,15 +307,15 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
         
         {/* CARD 1: DAY (HÔM NAY) */}
         <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-sky-200/20 rounded-full blur-xl" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-200/20 rounded-full blur-xl" />
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-sky-50 border border-sky-100 text-sky-600">
+              <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600">
                 <Clock className="w-4 h-4" />
               </div>
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">QUẢN LÝ THEO NGÀY</span>
             </div>
-            <span className="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full font-mono">{todayStr}</span>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-mono">{todayStr}</span>
           </div>
 
           <span className="text-xs text-slate-400 block font-bold leading-none">Doanh Thu Trong Ngày:</span>
@@ -332,7 +332,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                 setTimeFilter("day");
                 document.getElementById("tx-tabbed-box")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="text-[10.5px] font-black text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-0.5"
+              className="text-[10.5px] font-black text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-0.5"
             >
               Xem chi tiết lẻ
             </button>
@@ -420,7 +420,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-6 gap-3">
               <div>
                 <h3 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-1.5">
-                  <BarChart3 className="w-4 h-4 text-sky-500" />
+                  <BarChart3 className="w-4 h-4 text-emerald-500" />
                   <span>Sách Kê Giao Dịch Thu Tiền Khách</span>
                 </h3>
                 <p className="text-[10px] text-slate-450 text-slate-400 mt-0.5">Dòng tiền thực thu nhận từ khách mua VIP Key Play Together Auto Mua Quả</p>
@@ -438,7 +438,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                     onClick={() => setTimeFilter(t.id as any)}
                     className={`px-3 py-1.5 rounded-lg text-[10.5px] font-black transition-all cursor-pointer ${
                       timeFilter === t.id
-                        ? "bg-white text-sky-600 shadow-sm"
+                        ? "bg-white text-emerald-600 shadow-sm"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
@@ -462,7 +462,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                         <span className="w-16 font-semibold text-slate-550 text-slate-500 text-left">{m.name}</span>
                         <div className="flex-grow h-3 bg-slate-200 rounded-full overflow-hidden mx-3 relative">
                           <div 
-                            className="bg-indigo-500 h-full rounded-full transition-all duration-500" 
+                            className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -484,7 +484,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                 placeholder="Tìm giao dịch chi tiết theo mã đơn, email người mua hoặc tên gói..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 focus:border-sky-500 focus:bg-white rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2 pl-10 pr-4 text-xs text-slate-800 outline-none transition-all"
               />
             </div>
 
@@ -509,7 +509,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                   <tbody className="divide-y divide-slate-100 font-mono text-slate-700">
                     {visibleAndFilteredOrders.map((ord) => (
                       <tr key={ord.id} className="hover:bg-slate-50/70">
-                        <td className="py-3 font-semibold text-sky-600">#{ord.id}</td>
+                        <td className="py-3 font-semibold text-emerald-600">#{ord.id}</td>
                         <td className="font-sans text-slate-800 font-bold truncate max-w-[120px]" title={ord.productName}>
                           {ord.productName.replace("Key VIP Auto Mua Quả Trong Shop - ", "")}
                         </td>
@@ -647,7 +647,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                       name="offset" 
                       checked={customDateOffset === "today"} 
                       onChange={() => setCustomDateOffset("today")}
-                      className="accent-sky-500"
+                      className="accent-emerald-500"
                     />
                     <span>Hôm nay (Tính vào Doanh thu Ngày/Tháng/Năm)</span>
                   </label>
@@ -657,7 +657,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                       name="offset" 
                       checked={customDateOffset === "prev-days"} 
                       onChange={() => setCustomDateOffset("prev-days")}
-                      className="accent-sky-500"
+                      className="accent-emerald-500"
                     />
                     <span>Cách đây ít ngày (Tính vào Tháng/Năm)</span>
                   </label>
@@ -667,7 +667,7 @@ export default function SellerDashboard({ orders, onAddSimulatedOrder, products 
                       name="offset" 
                       checked={customDateOffset === "prev-months"} 
                       onChange={() => setCustomDateOffset("prev-months")}
-                      className="accent-sky-500"
+                      className="accent-emerald-500"
                     />
                     <span>Cách đây 2 tháng (Chuyển dòng tiền sang Năm)</span>
                   </label>

@@ -262,7 +262,7 @@ export default function Hero({
         <div className="mt-12 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 px-4 sm:px-0">
           {[
             { label: "Giao Dịch Thành Công", val: "9,850+ Key", desc: "Phát trực tiếp online tức thì 100%", icon: Zap, color: "text-emerald-500 bg-emerald-50" },
-            { label: "Tốc Độ Cấp Key", val: "Dưới 5 giây", desc: "Sau khi hệ thống nhận được tiền chuyển", icon: ShieldCheck, color: "text-indigo-600 bg-indigo-50" },
+            { label: "Tốc Độ Cấp Key", val: "Dưới 5 giây", desc: "Sau khi hệ thống nhận được tiền chuyển", icon: ShieldCheck, color: "text-teal-650 text-teal-600 bg-teal-50" },
             { label: "Bảo Mật Bypass", val: "Anti-Ban Tuyệt Đối", desc: "Mã hóa chống phát hiện Haegin", icon: Star, color: "text-amber-500 bg-amber-50" },
             { label: "Chăm Sóc Khách Hàng", val: "Hỗ Trợ 24/7 Zalo", desc: "Xử lý hỗ trợ điều chỉnh kịch bản", icon: Headphones, color: "text-rose-500 bg-rose-50" },
           ].map((stat, i) => {

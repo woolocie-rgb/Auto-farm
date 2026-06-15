@@ -58,6 +58,60 @@ function saveKeys(keys: KeyRecord[]) {
   }
 }
 
+// User persistent database path and types
+const USERS_FILE = path.join(process.cwd(), "users.db.json");
+
+interface UserRecord {
+  phoneNumberOrEmail: string;
+  password?: string;
+  referralCode: string;
+  referralEarnings: number;
+  balance: number;
+  isAdmin: boolean;
+}
+
+function loadUsers(): UserRecord[] {
+  try {
+    if (fs.existsSync(USERS_FILE)) {
+      const content = fs.readFileSync(USERS_FILE, "utf-8");
+      return JSON.parse(content);
+    }
+  } catch (error) {
+    console.error("Error reading users file, resetting:", error);
+  }
+
+  // Pre-populate with default users for testing
+  const defaultUsers: UserRecord[] = [
+    {
+      phoneNumberOrEmail: "woolocie@gmail.com",
+      password: "Quocloc@21",
+      referralCode: "AFF-WOOLO",
+      referralEarnings: 2450000,
+      balance: 150000, // seed some initial balance to test
+      isAdmin: true
+    },
+    {
+      phoneNumberOrEmail: "0334410858",
+      password: "Quocloc@21",
+      referralCode: "AFF-LOC",
+      referralEarnings: 5000000,
+      balance: 850000,
+      isAdmin: true
+    }
+  ];
+
+  fs.writeFileSync(USERS_FILE, JSON.stringify(defaultUsers, null, 2), "utf-8");
+  return defaultUsers;
+}
+
+function saveUsers(users: UserRecord[]) {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Failed to save users to disk:", error);
+  }
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
@@ -68,12 +122,171 @@ async function startServer() {
   // CORS support so external python requests and browsers can make calls safely
   app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     if (req.method === "OPTIONS") {
       return res.sendStatus(200);
     }
     next();
+  });
+
+  // API SePay Webhook
+  app.post("/api/sepay/webhook", (req, res) => {
+    console.log("[SePay] Received payment notification:", req.body);
+    
+    // Support SePay webhook activation ping/empty bodies checks
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(200).json({ success: true, message: "Webhook is alive and listening!" });
+    }
+
+    const { transferType, transferAmount, content } = req.body;
+    
+    // Check if transfer is an inquiry / in-bound payment
+    if (transferType && transferType !== "in") {
+      return res.status(200).json({ success: true, message: "Ignore outgoing transaction" });
+    }
+
+    const amount = Number(transferAmount);
+    if (isNaN(amount) || amount <= 0) {
+      // Return 200 so SePay test pings or dummy requests pass without triggering "Có lỗi xảy ra" in SePay UI
+      return res.status(200).json({ success: true, message: "Demo/verification request received. Webhook live!" });
+    }
+
+    if (!content) {
+      return res.status(200).json({ success: true, message: "Verify request success - structure holds" });
+    }
+
+    // Process memo, e.g. "BP 0334410858" or "BP WOOLOCIE@GMAIL.COM"
+    const memo = content.toString().trim().toUpperCase();
+    console.log(`[SePay] Parsing payment memo: "${memo}" for billing amount ${amount} đ`);
+
+    const users = loadUsers();
+    
+    // Find a user where their phone/email clean characters match inside public transfer description 
+    let matchedUserIndex = -1;
+    for (let i = 0; i < users.length; i++) {
+      const uEmailOrPhone = users[i].phoneNumberOrEmail.trim().toUpperCase();
+      const cleanUserKey = uEmailOrPhone.replace(/[^A-Z0-9]/g, "");
+      const cleanMemo = memo.replace(/[^A-Z0-9]/g, "");
+      
+      // Look for clean user key inside clean memo or vice versa
+      if ((cleanMemo.includes(cleanUserKey) || cleanUserKey.includes(cleanMemo)) && cleanUserKey.length > 2) {
+        matchedUserIndex = i;
+        break;
+      }
+
+      // If email, look for prefix part before '@' in clean memo
+      if (uEmailOrPhone.includes("@")) {
+        const prefix = uEmailOrPhone.split("@")[0].replace(/[^A-Z0-9]/g, "");
+        if (prefix.length >= 3 && cleanMemo.includes(prefix)) {
+          matchedUserIndex = i;
+          break;
+        }
+      }
+
+      // If phone/numeric, check if phone digits are in clean memo
+      const digitsOnly = uEmailOrPhone.replace(/[^0-9]/g, "");
+      if (digitsOnly.length >= 8 && cleanMemo.includes(digitsOnly)) {
+        matchedUserIndex = i;
+        break;
+      }
+    }
+
+    if (matchedUserIndex === -1) {
+      console.warn(`[SePay] Unable to find any user registered under memo elements: "${memo}"`);
+      return res.status(200).json({ 
+        success: false, 
+        message: `No active user matches the payment content "${memo}". Please check transaction details.`
+      });
+    }
+
+    // Top up the balance on server database
+    const matchedUser = users[matchedUserIndex];
+    const oldBalance = matchedUser.balance;
+    matchedUser.balance += amount;
+    users[matchedUserIndex] = matchedUser;
+    
+    saveUsers(users);
+
+    console.log(`[SePay] SUCCESS: User ${matchedUser.phoneNumberOrEmail} balance updated from ${oldBalance} -> ${matchedUser.balance} (+${amount})`);
+    
+    return res.status(200).json({ 
+      success: true, 
+      message: `Balance updated successfully for user ${matchedUser.phoneNumberOrEmail}`,
+      user: matchedUser.phoneNumberOrEmail,
+      creditedAmount: amount,
+      newBalance: matchedUser.balance
+    });
+  });
+
+  // User Endpoints
+  app.get("/api/users/get", (req, res) => {
+    const { username } = req.query;
+    if (!username) {
+      return res.status(400).json({ success: false, message: "Missing username param" });
+    }
+    const users = loadUsers();
+    const user = users.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === (username as string).trim().toLowerCase());
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({ success: true, user });
+  });
+
+  app.post("/api/users/update-balance", (req, res) => {
+    const { username, balance } = req.body;
+    if (!username || balance === undefined) {
+      return res.status(400).json({ success: false, message: "Missing fields" });
+    }
+    const users = loadUsers();
+    const userIndex = users.findIndex(u => u.phoneNumberOrEmail.trim().toLowerCase() === (username as string).trim().toLowerCase());
+    if (userIndex === -1) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    users[userIndex].balance = Number(balance);
+    saveUsers(users);
+    res.json({ success: true, balance: users[userIndex].balance });
+  });
+
+  app.post("/api/users/login", (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: "Vui lòng nhập tài khoản và mật khẩu" });
+    }
+    const users = loadUsers();
+    const user = users.find(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Tài khoản không tồn tại trên hệ thống!" });
+    }
+    if (user.password !== password) {
+      return res.status(401).json({ success: false, message: "Mật khẩu không chính xác!" });
+    }
+    res.json({ success: true, user });
+  });
+
+  app.post("/api/users/register", (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: "Thiếu tài khoản hoặc mật khẩu" });
+    }
+    const users = loadUsers();
+    const exists = users.some(u => u.phoneNumberOrEmail.trim().toLowerCase() === username.trim().toLowerCase());
+    if (exists) {
+      return res.status(400).json({ success: false, message: "Tài khoản/SĐT này đã tồn tại!" });
+    }
+
+    const newUser: UserRecord = {
+      phoneNumberOrEmail: username,
+      password: password,
+      referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
+      referralEarnings: 50000,
+      balance: 100000, // 100k welcome test balance
+      isAdmin: username === "0334410858" && password === "Quocloc@21"
+    };
+
+    users.push(newUser);
+    saveUsers(users);
+    res.json({ success: true, user: newUser });
   });
 
   // API 1: Fetch all keys (Admin & display purposes on the dashboard)

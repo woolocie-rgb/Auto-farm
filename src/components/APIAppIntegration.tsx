@@ -220,7 +220,7 @@ if __name__ == "__main__":
             
             <div className="space-y-2">
               <div>
-                <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-black mr-2 font-mono">POST</span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-black mr-2 font-mono">POST</span>
                 <span className="text-[11.5px] font-mono text-slate-700 select-all font-semibold">{hostUrl}/api/keys/verify</span>
               </div>
               <p className="text-[10.5px] text-slate-400 font-semibold leading-relaxed">
@@ -316,12 +316,12 @@ if __name__ == "__main__":
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-2.5">
               <h3 className="font-extrabold text-slate-850 text-xs text-slate-800 flex items-center gap-1.5 uppercase tracking-wider">
-                <Code className="w-4 h-4 text-sky-500" />
+                <Code className="w-4 h-4 text-emerald-500" />
                 <span>Source Code Python Auto Client</span>
               </h3>
               <button
                 onClick={handleCopyPython}
-                className="text-[10px] font-black text-sky-600 bg-white border border-slate-200 px-2 py-1 rounded-lg shadow-sm hover:bg-slate-50 flex items-center gap-1 cursor-pointer transition-all"
+                className="text-[10px] font-black text-emerald-600 bg-white border border-slate-200 px-2 py-1 rounded-lg shadow-sm hover:bg-slate-50 flex items-center gap-1 cursor-pointer transition-all"
               >
                 {copiedPython ? (
                   <>
@@ -377,7 +377,7 @@ if __name__ == "__main__":
                   <div key={i} className="bg-white border border-slate-100 p-2.5 rounded-xl text-left shadow-xs space-y-1 select-all hover:bg-slate-100/50 transition-colors">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[9px] font-black text-slate-800 tracking-tighter truncate max-w-[120px]">{k.key}</span>
-                      <span className="text-[8px] bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold px-1.5 py-0.2 rounded uppercase">{k.tier}</span>
+                      <span className="text-[8px] bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold px-1.5 py-0.2 rounded uppercase">{k.tier}</span>
                     </div>
                     <div className="flex items-center justify-between text-[8px] font-mono text-slate-400">
                       <span className="truncate max-w-[110px]">HWID: <strong className={k.hwid ? "text-amber-600 uppercase font-black" : "text-slate-300 font-bold"}>{k.hwid || "Trống (Chưa khóa)"}</strong></span>

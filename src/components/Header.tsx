@@ -90,7 +90,7 @@ export default function Header({
             className="flex items-center gap-3 cursor-pointer group shrink-0"
           >
             {/* Image 4 custom representation: Rounded square, AUTO text, Blue sky background, trolley image */}
-            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-500 border-2 border-slate-100 shadow-md overflow-hidden flex flex-col items-center justify-between p-1 group-hover:scale-105 transition-transform duration-200">
+            <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-slate-100 shadow-md overflow-hidden flex flex-col items-center justify-between p-1 group-hover:scale-105 transition-transform duration-200">
               {!logoError ? (
                 <img 
                   src="/logo.png" 
@@ -182,7 +182,7 @@ export default function Header({
                     onClick={() => handleTabSelect("products")}
                     className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
                   >
-                    <Key className="w-3.5 h-3.5 text-indigo-505 text-indigo-500" />
+                    <Key className="w-3.5 h-3.5 text-emerald-500" />
                     <span>Mua Key Auto VIP</span>
                   </button>
 
@@ -214,31 +214,6 @@ export default function Header({
               <History className="w-3.5 h-3.5" />
               <span>Lịch Sử Mua</span>
             </button>
-
-            {/* TÍCH HỢP PYTHON AUTO */}
-            <button
-              onClick={() => handleTabSelect("api-integration")}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                activeTab === "api-integration"
-                  ? "bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm"
-                  : "text-slate-650 text-slate-500 hover:text-emerald-700 hover:bg-emerald-50/25"
-              }`}
-            >
-              <Gamepad className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-              <span>Tích Hợp Python Auto</span>
-            </button>
-
-            {/* SELLER MODE (Optional switch) */}
-            <button
-              onClick={() => {
-                setViewMode("seller");
-                setActiveTab("sales-mgmt");
-              }}
-              className="flex items-center gap-1 px-3 py-1 text-[10px] font-black bg-slate-900 text-amber-400 hover:bg-slate-800 rounded-full cursor-pointer ml-3 transition-colors border border-slate-800"
-            >
-              <LayoutDashboard className="w-3 h-3 text-amber-400" />
-              <span>Bán Hàng</span>
-            </button>
           </nav>
 
           {/* Account Profile element (Boy winking avatar from Image 1, username & Red Balance display) */}
@@ -248,10 +223,10 @@ export default function Header({
                 {/* Image 1 inspired Profile Button layout with red balance with red underline */}
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-3 bg-white hover:bg-slate-50 border border-slate-200 p-2 pr-4 rounded-2xl shadow-sm transition-all text-left group cursor-pointer"
+                  className="flex items-center gap-0 md:gap-3 bg-transparent md:bg-white hover:bg-slate-50 border-0 md:border md:border-slate-200 p-0 md:p-2 md:pr-4 rounded-full md:rounded-2xl shadow-none md:shadow-sm transition-all text-left group cursor-pointer"
                 >
                   {/* Winking Boy Custom SVG Avatar representing Image 1 precisely */}
-                  <div className="relative w-10 h-10 rounded-full bg-sky-400 flex items-center justify-center overflow-hidden border border-sky-300 shadow-inner shrink-0">
+                  <div className="relative w-10 h-10 rounded-full bg-emerald-400 flex items-center justify-center overflow-hidden border border-emerald-300 shadow-sm shrink-0">
                     {!avatarError ? (
                       <img 
                         src="/avatar.png" 
@@ -304,7 +279,7 @@ export default function Header({
                   </div>
 
                   {/* Info Column containing Username and Red Underlined Balance like Image 1 */}
-                  <div className="flex flex-col text-left">
+                  <div className="hidden md:flex flex-col text-left">
                     <span className="text-xs sm:text-[13px] font-black text-slate-800 leading-none group-hover:text-emerald-600 transition-colors">
                       {user.phoneNumberOrEmail.split("@")[0]}
                     </span>
@@ -314,42 +289,106 @@ export default function Header({
                   </div>
 
                   {/* Dropdown Indicator */}
-                  <ChevronDown className={`w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform ${profileDropdownOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`hidden md:block w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform ${profileDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {/* Profile actions Dropdown */}
                 {profileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl py-2.5 z-50 animate-fade-in text-left">
-                    <div className="px-4 py-1.5 border-b border-slate-100 mb-1">
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2.5 z-50 animate-fade-in text-left">
+                    {/* Mobile user details with red balance */}
+                    <div className="block md:hidden px-4 py-3 bg-slate-50 border-b border-slate-100 rounded-t-2xl -mt-2.5 mb-2">
+                      <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wide">Tài khoản</p>
+                      <p className="text-xs font-black text-slate-800 truncate">{user.phoneNumberOrEmail}</p>
+                      
+                      <div className="mt-2 pt-2 border-t border-slate-200/60">
+                        <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wide">Số dư tài khoản</p>
+                        <span className="text-red-500 text-sm font-black font-mono leading-none mt-1 border-b-2 border-red-500 border-dashed w-max inline-block">
+                          {user.balance.toLocaleString("vi-VN")} đ
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Desktop user detail header */}
+                    <div className="hidden md:block px-4 py-1.5 border-b border-slate-100 mb-1">
                       <p className="text-[10px] text-slate-400 font-extrabold uppercase">Tài khoản</p>
                       <p className="text-xs font-bold text-slate-700 truncate">{user.phoneNumberOrEmail}</p>
                     </div>
 
-                    {/* Nạp tiền */}
+                    {/* MOBILE QUICK NAVIGATION MENU */}
+                    <div className="md:hidden border-b border-slate-100 pb-1.5 mb-1.5 space-y-0.5">
+                      <div className="px-4 py-1">
+                        <p className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wide">Điều hướng menu</p>
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          handleTabSelect("products");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-650 text-slate-650 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm shrink-0">🏠</span>
+                        <span>Trang Chủ (Bảng Giá)</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleTabSelect("purchase-history");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-650 text-slate-650 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm shrink-0">🔑</span>
+                        <span>Lịch Sử Mua Key VIP</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleTabSelect("blind-bag");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-650 text-slate-650 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm shrink-0">🎁</span>
+                        <span className="text-rose-605 text-rose-600 font-black">Bốc Túi Mù May Mắn</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleTabSelect("affiliate");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-650 text-slate-650 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      >
+                        <span className="text-sm shrink-0">💸</span>
+                        <span>Hoa Hồng CTV</span>
+                      </button>
+                    </div>
+
+                    {/* Common actions */}
                     <button
                       onClick={() => {
                         onOpenTopUp();
                         setProfileDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
                     >
                       <span className="text-emerald-500 text-sm">🏧</span>
-                      <span>Nạp tiền</span>
+                      <span>Nạp tiền ATM</span>
                     </button>
 
-                    {/* Thông Tin */}
                     <button
                       onClick={() => {
                         onOpenInfo();
                         setProfileDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 text-left transition-colors cursor-pointer"
                     >
-                      <span className="text-indigo-505 text-indigo-500 text-sm">ℹ️</span>
+                      <span className="text-emerald-500 text-sm">ℹ️</span>
                       <span>Thông Tin Dịch Vụ</span>
                     </button>
 
-                    <div className="border-t border-slate-100 my-1" />
+                    <div className="border-t border-slate-100 my-1.5" />
 
                     {/* Đăng Xuất */}
                     <button
@@ -359,7 +398,7 @@ export default function Header({
                       }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-extrabold text-rose-600 hover:bg-rose-50 text-left transition-colors cursor-pointer"
                     >
-                      <LogOut className="w-4 h-4 text-rose-550 text-rose-550" />
+                      <LogOut className="w-4 h-4 text-rose-500" />
                       <span>Đăng Xuất</span>
                     </button>
                   </div>
@@ -376,12 +415,14 @@ export default function Header({
             )}
 
             {/* Mobile burger toggle menu */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 focus:outline-none rounded-xl border border-slate-200 shrink-0"
-            >
-              <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
-            </button>
+            {!user.isLoggedIn && (
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="md:hidden p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 focus:outline-none rounded-xl border border-slate-200 shrink-0"
+              >
+                <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
+              </button>
+            )}
           </div>
 
         </div>
@@ -422,13 +463,6 @@ export default function Header({
             className="w-full text-left font-bold text-xs text-slate-705 text-slate-700 py-2.5 px-4 rounded-xl hover:bg-slate-50 flex items-center gap-2"
           >
             🔑 Lịch Sử Giao Dịch
-          </button>
-
-          <button
-            onClick={() => handleTabSelect("api-integration")}
-            className="w-full text-left font-bold text-xs text-slate-700 py-2.5 px-4 rounded-xl hover:bg-slate-50 flex items-center gap-2"
-          >
-            🎮 Tích Hợp Python Auto
           </button>
 
           <div className="border-t border-slate-100 pt-3 mt-3">

@@ -1,16 +1,25 @@
 import React, { useState } from "react";
 import { X, Sparkles, CreditCard, Landmark, Check, ShieldCheck, QrCode } from "lucide-react";
+import { User } from "../types";
 
 interface TopUpModalProps {
   onClose: () => void;
   onAddFunds: (amount: number) => void;
+  currentUser?: User;
 }
 
-export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
+export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpModalProps) {
   const [amountOption, setAmountOption] = useState<number>(50000);
   const [paymentMethod, setPaymentMethod] = useState<"qr" | "card" | "momo">("card");
   const [isSuccess, setIsSuccess] = useState(false);
   const [successAmt, setSuccessAmt] = useState(0);
+
+  // Derive custom user memo for SePay, e.g. "BP WOOLOCIE" or "BP 0334410858"
+  const userMemoKey = currentUser?.phoneNumberOrEmail
+    ? currentUser.phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "")
+    : "WOOLOCIE";
+
+  const billingMemo = `BP ${userMemoKey}`;
 
   const amountPresets = [20000, 50000, 100000, 200000, 500000];
 
@@ -39,12 +48,12 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
         <div className="relative inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-250 animate-fade-in relative">
           
           {/* Header */}
-          <div className="bg-gradient-to-r from-sky-600 to-indigo-700 py-5 px-6 text-white relative">
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-800 py-5 px-6 text-white relative">
             <h3 className="text-base sm:text-lg font-black tracking-tight flex items-center gap-2">
-              <Landmark className="w-5 h-5 text-indigo-200 animate-pulse" />
+              <Landmark className="w-5 h-5 text-emerald-200 animate-pulse" />
               <span>Nạp Tiền Giả Lập Vào Tài Khoản</span>
             </h3>
-            <p className="text-[10.5px] text-sky-100/90 font-medium leading-relaxed mt-1">
+            <p className="text-[10.5px] text-emerald-100/90 font-medium leading-relaxed mt-1">
               Hệ thống mô phỏng thanh toán nhanh. Bạn có thể nạp thử tiền thật/thử nghiệm tức thì để nâng số dư của mình hoàn toàn miễn phí!
             </p>
             
@@ -95,7 +104,7 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                     onClick={() => setPaymentMethod("card")}
                     className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
                       paymentMethod === "card"
-                        ? "bg-white text-indigo-700 shadow-sm"
+                        ? "bg-white text-emerald-700 shadow-sm"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
@@ -106,7 +115,7 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                     onClick={() => setPaymentMethod("qr")}
                     className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
                       paymentMethod === "qr"
-                        ? "bg-white text-indigo-700 shadow-sm"
+                        ? "bg-white text-emerald-700 shadow-sm"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
@@ -140,8 +149,8 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                             onClick={() => setAmountOption(val)}
                             className={`py-2 rounded-xl text-center border font-mono font-bold transition-all cursor-pointer ${
                               amountOption === val
-                                ? "bg-indigo-600 text-white border-indigo-650 shadow-md shadow-indigo-600/10"
-                                : "bg-white text-slate-700 border-slate-200 hover:border-indigo-300"
+                                ? "bg-emerald-600 text-white border-emerald-650 shadow-md shadow-emerald-600/10"
+                                : "bg-white text-slate-700 border-slate-200 hover:border-emerald-300"
                             }`}
                           >
                             {(val / 1000).toLocaleString()}k đ
@@ -151,15 +160,15 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                     </div>
 
                     {/* Simulation alert */}
-                    <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-[10.5px] text-indigo-900 font-semibold leading-relaxed">
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-[10.5px] text-emerald-900 font-semibold leading-relaxed">
                       🔥 <strong>Lợi thế test nhanh</strong>: Chọn mệnh giá ở trên rồi ấn nút nạp để biến hóa ví từ <strong className="text-red-650 text-red-600">0 đ</strong> lên tài chính dồi dào cày game tức thì!
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full bg-indigo-600 hover:bg-indigo-705 bg-indigo-600 text-white font-black py-3 rounded-xl cursor-pointer shadow-lg shadow-indigo-600/15 transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl cursor-pointer shadow-lg shadow-emerald-600/15 transition-transform active:scale-95 flex items-center justify-center gap-1.5"
                     >
-                      <Landmark className="w-4 h-4 text-indigo-200" />
+                      <Landmark className="w-4 h-4 text-emerald-200" />
                       <span>XÁC NHẬN NẠP LẬP TỨC &rarr;</span>
                     </button>
                   </div>
@@ -168,10 +177,10 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                 {paymentMethod === "qr" && (
                   <div className="space-y-4 text-center py-2">
                     <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-col items-center justify-center animate-fade-in">
-                      {/* Dynamic VietQR API code representation */}
+                      {/* Dynamic VietQR API code representation with customized user memo */}
                       <div className="w-52 h-52 bg-white border border-slate-200 rounded-2xl flex items-center justify-center p-1 shadow-sm relative overflow-hidden group">
                         <img 
-                          src={`https://img.vietqr.io/image/vietcombank-0181003622756-compact2.png?amount=${amountOption}&addInfo=BP%20${amountOption}&accountName=TRAN%20HUYNH%20QUOC%20LOC`}
+                          src={`https://img.vietqr.io/image/vietcombank-0181003622756-compact2.png?amount=${amountOption}&addInfo=${encodeURIComponent(billingMemo)}&accountName=TRAN%20HUYNH%20QUOC%20LOC`}
                           alt="VietQR Chuyển Khoản"
                           className="w-full h-full object-contain"
                           referrerPolicy="no-referrer"
@@ -184,12 +193,12 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                         </span>
                         <div className="text-slate-800 font-black text-sm mt-2 font-mono tracking-wide">STK: 0181003622756</div>
                         <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Chủ tài khoản: TRẦN HUỲNH QUỐC LỘC</div>
-                        <div className="text-[11px] text-indigo-700 font-black mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
+                        <div className="text-[11px] text-emerald-700 font-black mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
                       </div>
                     </div>
 
                     <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-[10.5px] text-amber-900 font-bold leading-normal text-left">
-                      📋 <strong>Cú pháp nạp</strong>: Quét mã QR ở trên hoặc chuyển khoản thủ công với nội dung: <span className="font-mono text-indigo-700 underline text-xs">BP {amountOption}</span>. Hệ thống ngân hàng API tự động sẽ đối soát giao dịch và cộng tiền vào số dư của bạn sau 10 giây! (Bạn có thể dùng tab Simulator để nạp nhanh miễn phí tức thì).
+                      📋 <strong>Cú pháp nạp</strong>: Quét mã QR ở trên hoặc chuyển khoản thủ công với nội dung: <span className="font-mono text-emerald-700 underline text-xs font-black">{billingMemo}</span>. Hệ thống ngân hàng API tự động sẽ đối soát giao dịch và cộng tiền vào số dư của bạn sau 10 giây! (Bạn có thể dùng tab Simulator để nạp nhanh miễn phí tức thì).
                     </div>
 
                     <button
@@ -209,10 +218,10 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
                 {paymentMethod === "momo" && (
                   <div className="space-y-4 text-center py-2 animate-fade-in">
                     <div className="bg-rose-50/50 border border-rose-100 p-3 rounded-2xl flex flex-col items-center justify-center">
-                      {/* MoMo QR generator via qrserver */}
-                      <div className="w-52 h-52 bg-white border-2 border-rose-550 border-rose-500 rounded-2xl flex items-center justify-center p-1 shadow-sm relative overflow-hidden group">
+                      {/* MoMo QR generator via qrserver with customized user memo */}
+                      <div className="w-52 h-52 bg-white border-2 border-rose-500 rounded-2xl flex items-center justify-center p-1 shadow-sm relative overflow-hidden group">
                         <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=2%7C99%7C0334410858%7CTRAN%20HUYNH%20QUOC%20LOC%7Cwoolocie%40gmail.com%7C0%7C0%7C${amountOption}%7CBP%20${amountOption}`}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=2%7C99%7C0334410858%7CTRAN%20HUYNH%20QUOC%20LOC%7Cwoolocie%40gmail.com%7C0%7C0%7C${amountOption}%7C${encodeURIComponent(billingMemo)}`}
                           alt="MoMo QR Code Chuyển Khoản"
                           className="w-full h-full object-contain"
                           referrerPolicy="no-referrer"
@@ -221,16 +230,16 @@ export default function TopUpModal({ onClose, onAddFunds }: TopUpModalProps) {
 
                       <div className="text-center mt-3">
                         <span className="text-[10px] bg-rose-50 text-rose-700 font-extrabold px-3 py-1 rounded-full border border-rose-200 font-sans uppercase animate-pulse">
-                          VÍ ĐIỆN TỬ MOMO
+                          VÍ ĐIỆT TỬ MOMO
                         </span>
                         <div className="text-slate-800 font-black text-sm mt-2 font-mono tracking-wide">SĐT: 0334410858</div>
                         <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Chủ tài khoản: TRẦN HUỲNH QUỐC LỘC</div>
-                        <div className="text-[11px] text-rose-750 text-rose-700 font-black mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
+                        <div className="text-[11px] text-rose-700 font-black mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
                       </div>
                     </div>
 
                     <div className="bg-rose-50 border border-rose-250 border-rose-200 p-3 rounded-xl text-[10.5px] text-rose-950 font-bold leading-normal text-left">
-                      📋 <strong>Cú pháp nạp MoMo</strong>: Quét mã QR ở trên hoặc chuyển khoản thủ công tới Số Điện Thoại MoMo <span className="font-mono text-rose-700 underline text-xs font-black">0334410858</span> với nội dung ghi chú chính xác: <span className="font-mono text-indigo-700 underline text-xs font-black">BP {amountOption}</span> để được cộng tiền tự động siêu tốc!
+                      📋 <strong>Cú pháp nạp MoMo</strong>: Quét mã QR ở trên hoặc chuyển khoản thủ công tới Số Điện Thoại MoMo <span className="font-mono text-rose-700 underline text-xs font-black">0334410858</span> với nội dung ghi chú chính xác: <span className="font-mono text-emerald-700 underline text-xs font-black">{billingMemo}</span> để được cộng tiền tự động siêu tốc!
                     </div>
 
                     <button

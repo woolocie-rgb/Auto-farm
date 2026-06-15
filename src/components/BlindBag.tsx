@@ -29,7 +29,7 @@ const REWARDS_DATA: RewardItem[] = [
     value: "15days", 
     chanceText: "50%", 
     weight: 50, 
-    color: "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white", 
+    color: "bg-gradient-to-br from-emerald-500 to-teal-700 text-white", 
     icon: "🔑",
     description: "Kích hoạt 15 ngày cắm máy nông trại tự động bypass chống quét bảo mật"
   },
@@ -297,7 +297,7 @@ export default function BlindBag({ balance, onUpdateBalance, onAddKeyToHistory }
                   </div>
                 )}
                 {selectedReward.type === "key" && (
-                  <div className="bg-indigo-50 border border-indigo-200 text-indigo-800 rounded-xl p-3 text-[11px] font-bold leading-normal font-sans">
+                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-805 text-emerald-800 rounded-xl p-3 text-[11px] font-bold leading-normal font-sans">
                     🔑 Mã key tự động kích hoạt đã cấp thẳng vào mục <strong>“Lịch sử mua key”</strong> ở trên cùng!
                   </div>
                 )}

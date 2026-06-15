@@ -31,8 +31,8 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
       {/* 1. KEY INDICATORS GRID - Light Themed Cards with Soft Sky Shadows */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Lượt Click Tìm Key", val: totalClicks.toLocaleString(), suffix: " lượt", icon: Users, color: "text-sky-500 bg-sky-50" },
-          { label: "Đăng Ký Đã Kích Hoạt OTP", val: totalSignups.toLocaleString(), suffix: " user", icon: ShieldCheck, color: "text-indigo-500 bg-indigo-50" },
+          { label: "Lượt Click Tìm Key", val: totalClicks.toLocaleString(), suffix: " lượt", icon: Users, color: "text-emerald-500 bg-emerald-50" },
+          { label: "Đăng Ký Đã Kích Hoạt OTP", val: totalSignups.toLocaleString(), suffix: " user", icon: ShieldCheck, color: "text-emerald-600 bg-emerald-50/80" },
           { label: "Key Phát Tự Động Thành Công", val: totalSales.toLocaleString(), suffix: " đơn", icon: ShoppingCart, color: "text-emerald-500 bg-emerald-50" },
           { label: "Tỷ Lệ Chốt Key Tức Thì", val: averageCR, suffix: " %", icon: Percent, color: "text-amber-500 bg-amber-50" },
         ].map((stat, i) => {
@@ -65,18 +65,18 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Affiliate Earning Card - Clean white with beautiful sky border */}
         <div className="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-sky-100 rounded-full blur-2xl" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-100/50 rounded-full blur-2xl" />
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-[9px] bg-slate-100 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full uppercase font-black tracking-widest">
                 Ví Doanh Số Cộng Tác Viên
               </span>
-              <DollarSign className="w-5 h-5 text-sky-500" />
+              <DollarSign className="w-5 h-5 text-emerald-500" />
             </div>
 
             <div className="space-y-1">
-              <span className="text-xs text-slate-505 text-slate-500 block font-medium">Doanh số cộng dồn (Gross):</span>
+              <span className="text-xs text-slate-500 block font-medium">Doanh số cộng dồn (Gross):</span>
               <div className="text-lg font-bold text-slate-700 font-mono">
                 {totalRevenue.toLocaleString("vi-VN")} đ
               </div>
@@ -84,7 +84,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
 
             <div className="space-y-1 mt-4">
               <span className="text-xs text-slate-500 block font-medium">Hoa hồng của tôi đã tích lũy:</span>
-              <div className="text-3xl font-black text-sky-600 font-mono tracking-tight">
+              <div className="text-3xl font-black text-emerald-600 font-mono tracking-tight">
                 {totalCommissions.toLocaleString("vi-VN")} đ
               </div>
             </div>
@@ -99,13 +99,13 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
               <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div>
                   <span className="text-[8px] text-slate-400 block uppercase font-bold">Mã của bạn</span>
-                  <span className="text-xs text-sky-600 font-mono font-bold tracking-wider">{user.referralCode}</span>
+                  <span className="text-xs text-emerald-600 font-mono font-bold tracking-wider">{user.referralCode}</span>
                 </div>
                 <button
                   type="button"
                   id="withdraw_commission_button"
                   onClick={() => alert("Yêu cầu rút hoa hồng đã được gửi! Hệ thống chuyển khoản tự động sẽ tất toán trong 3 phút sấm sét.")}
-                  className="bg-sky-500 hover:bg-sky-600 text-white font-black py-1.5 px-3.5 rounded-lg text-xs transition-colors cursor-pointer"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white font-black py-1.5 px-3.5 rounded-lg text-xs transition-colors cursor-pointer"
                 >
                   Rút Hoa Hồng
                 </button>
@@ -114,7 +114,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
               <button
                 onClick={onOpenAuth}
                 id="login_earnings_button"
-                className="w-full bg-sky-500 hover:bg-sky-605 bg-sky-500 text-white py-2.5 px-4 rounded-xl text-xs font-black transition-all text-center cursor-pointer shadow-sm"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 px-4 rounded-xl text-xs font-black transition-all text-center cursor-pointer shadow-sm"
               >
                 Đăng nhập để xem & rút tiền về
               </button>
@@ -128,10 +128,10 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
               <div>
                 <h4 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-1.5">
-                  <BarChart3 className="w-4 h-4 text-sky-500" />
+                  <BarChart3 className="w-4 h-4 text-emerald-500" />
                   <span>Biểu Đồ Theo Dõi Giao Dịch Key Phát Thành Công</span>
                 </h4>
-                <p className="text-[10px] text-slate-400 mt-1">So sánh số lượt nhấp tìm key (màu dương) so với tỷ lệ thanh toán nhận key thành công (màu lục)</p>
+                <p className="text-[10px] text-slate-400 mt-1">So sánh số lượt nhấp tìm key (màu teal) so với tỷ lệ thanh toán nhận key thành công (màu lục)</p>
               </div>
               <span className="text-[10px] text-slate-400 font-mono">Real-time 7 ngày gần nhất</span>
             </div>
@@ -141,8 +141,8 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
               <svg className="w-full h-full" viewBox="0 0 700 160" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="gradientClicks" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.15"/>
-                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0"/>
+                    <stop offset="0%" stopColor="#0d9488" stopOpacity="0.15"/>
+                    <stop offset="100%" stopColor="#0d9488" stopOpacity="0"/>
                   </linearGradient>
                   <linearGradient id="gradientSales" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#10b981" stopOpacity="0.2"/>
@@ -150,7 +150,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
                   </linearGradient>
                 </defs>
 
-                {/* Line 1 filled: Clicks (Sky blue) */}
+                {/* Line 1 filled: Clicks (Teal) */}
                 <path
                   d="M 50,130 C 150,90 250,110 350,70 C 450,55 550,45 650,60 L 650,150 L 50,150 Z"
                   fill="url(#gradientClicks)"
@@ -158,7 +158,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
                 <path
                   d="M 50,130 C 150,90 250,110 350,70 C 450,55 550,45 650,60"
                   fill="none"
-                  stroke="#0ea5e9"
+                  stroke="#0d9488"
                   strokeWidth="3.5"
                   strokeLinecap="round"
                 />
@@ -177,13 +177,13 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
                 />
 
                 {/* Draw dots */}
-                <circle cx="50" cy="130" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="150" cy="90" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="250" cy="110" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="350" cy="70" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="450" cy="55" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="550" cy="45" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
-                <circle cx="650" cy="60" r="4" fill="#0ea5e9" stroke="#fff" strokeWidth="1" />
+                <circle cx="50" cy="130" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="150" cy="90" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="250" cy="110" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="350" cy="70" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="450" cy="55" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="550" cy="45" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
+                <circle cx="650" cy="60" r="4" fill="#0d9488" stroke="#fff" strokeWidth="1" />
 
                 <circle cx="50" cy="150" r="3.5" fill="#10b981" stroke="#fff" strokeWidth="1" />
                 <circle cx="150" cy="145" r="3.5" fill="#10b981" stroke="#fff" strokeWidth="1" />
@@ -205,7 +205,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
 
           <div className="flex items-center justify-center gap-6 mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600">
             <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-sky-400 block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 block" />
               <span>Lượt bấm link / click tìm kiếm</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -222,13 +222,13 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-6 gap-4">
             <div>
               <h4 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-2">
-                <Mail className="w-4.5 h-4.5 text-sky-500" />
+                <Mail className="w-4.5 h-4.5 text-emerald-500" />
                 <span>Hộp Kiểm Thư Thư Nhận Key Tự Động</span>
               </h4>
               <p className="text-[10px] text-slate-450 mt-1">Trình mô phỏng xem trước các bước thư mà hệ thống tự động bắn khi kích hoạt mua Key.</p>
             </div>
 
-            <span className="text-[9px] bg-sky-50 border border-sky-100 text-sky-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+            <span className="text-[9px] bg-emerald-50 border border-emerald-100 text-emerald-600 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
               MAILER PIPELINE V2
             </span>
           </div>
@@ -243,15 +243,15 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
                   onClick={() => setSelectedDripStep(step)}
                   className={`p-4 rounded-xl border cursor-pointer text-left transition-all ${
                     isSelected
-                      ? "bg-sky-50/50 border-sky-450 border-sky-500 shadow-sm"
+                      ? "bg-emerald-50/50 border-emerald-400 border-emerald-500 shadow-sm"
                       : "bg-slate-50 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] font-mono text-sky-600 font-extrabold uppercase">
+                    <span className="text-[9px] font-mono text-emerald-600 font-extrabold uppercase">
                       BƯỚC {step.step} - {step.delayText}
                     </span>
-                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-sky-500" : "bg-slate-300"}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-emerald-500" : "bg-slate-300"}`} />
                   </div>
                   <h5 className="text-xs font-black text-slate-800 mt-1.5 truncate">{step.subject}</h5>
                   <p className="text-[9.5px] text-slate-500 mt-1 line-clamp-1">{step.purpose}</p>
@@ -271,7 +271,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
                 <div className="border-l border-slate-200" />
                 <div>
                   <span className="text-slate-400 font-semibold block">Tốc độ gửi thư:</span>
-                  <span className="text-sky-600 font-bold">{selectedDripStep.delayText}</span>
+                  <span className="text-emerald-600 font-bold">{selectedDripStep.delayText}</span>
                 </div>
                 <div className="border-l border-slate-200" />
                 <div>
@@ -328,7 +328,7 @@ export default function ConversionBoard({ user, onOpenAuth, orders, isSeller = f
               <tbody className="divide-y divide-slate-100 font-mono text-slate-700">
                 {orders.map((ord) => (
                   <tr key={ord.id} className="hover:bg-slate-50/80">
-                    <td className="py-3 font-semibold text-sky-600">#{ord.id}</td>
+                    <td className="py-3 font-semibold text-emerald-600">#{ord.id}</td>
                     <td className="font-sans text-slate-900 font-bold">{ord.productName}</td>
                     <td className="text-emerald-600 font-bold">{(ord.price).toLocaleString("vi-VN")} đ</td>
                     <td className="font-sans text-slate-500">{ord.buyerEmail}</td>

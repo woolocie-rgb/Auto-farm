@@ -35,7 +35,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
   const getFeasibilityText = () => {
     if (conversionRate < 2) return { text: "Thấp - Cần thêm bài đánh giá Mod game", color: "text-amber-600 bg-amber-50" };
     if (conversionRate >= 2 && conversionRate < 5) return { text: "Khả thi cao (Cộng đồng lướt câu cá đông đảo)", color: "text-emerald-700 bg-emerald-50" };
-    return { text: "Tuyệt đỉnh (Dành cho KOLs Youtube/TikTok)", color: "text-sky-705 text-sky-700 bg-sky-50" };
+    return { text: "Tuyệt đỉnh (Dành cho KOLs Youtube/TikTok)", color: "text-emerald-700 bg-emerald-50" };
   };
 
   const feasibility = getFeasibilityText();
@@ -43,11 +43,11 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
   return (
     <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto shadow-sm relative overflow-hidden">
       {/* Visual background gradient glow circle */}
-      <div className="absolute top-0 right-0 w-48 h-48 bg-sky-100/50 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-100/50 rounded-full blur-3xl pointer-events-none" />
       
       {/* Title */}
       <div className="pb-6 border-b border-slate-100 text-left">
-        <span className="text-sky-600 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+        <span className="text-emerald-600 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
           <Award className="w-4 h-4" />
           <span>Công Cụ Mở Rộng Cho Đại Lý Buyplay</span>
         </span>
@@ -72,7 +72,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
             <select
               value={selectedProduct.id}
               onChange={(e) => handleProductChange(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-sky-500 focus:bg-white rounded-xl py-2.5 px-3 text-xs text-slate-800 outline-none font-bold transition-all"
+              className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2.5 px-3 text-xs text-slate-800 outline-none font-bold transition-all"
             >
               {products.map((p) => (
                 <option key={p.id} value={p.id} className="bg-white text-slate-800">
@@ -86,7 +86,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
           <div>
             <div className="flex justify-between items-center text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-2">
               <span>2. Traffic xem bài viết review / tháng</span>
-              <span className="text-sky-600 font-mono text-sm font-black">{traffic.toLocaleString()} lượt</span>
+              <span className="text-emerald-600 font-mono text-sm font-black">{traffic.toLocaleString()} lượt</span>
             </div>
             <input
               type="range"
@@ -95,7 +95,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
               step="500"
               value={traffic}
               onChange={(e) => setTraffic(Number(e.target.value))}
-              className="w-full accent-sky-500 cursor-pointer h-1.5 bg-slate-150 bg-slate-200 rounded-lg outline-none"
+              className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
             />
             <span className="text-[10px] text-slate-400 block mt-1">
               (Số lượt game thủ tò mò lướt qua video TikTok hoặc bài viết review tool câu cá của bạn)
@@ -106,7 +106,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
           <div>
             <div className="flex justify-between items-center text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-2">
               <span>3. Tỷ lệ bấm vào link tiếp thị (CTR)</span>
-              <span className="text-sky-600 font-mono text-sm font-black">{ctr}%</span>
+              <span className="text-emerald-600 font-mono text-sm font-black">{ctr}%</span>
             </div>
             <input
               type="range"
@@ -115,7 +115,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
               step="0.5"
               value={ctr}
               onChange={(e) => setCtr(Number(e.target.value))}
-              className="w-full accent-sky-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
+              className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
             />
             <span className="text-[10px] text-slate-400 block mt-1">
               (Bình quân từ 3% - 10% nếu bạn làm video hướng dấn câu được cá mập siêu to)
@@ -126,7 +126,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
           <div>
             <div className="flex justify-between items-center text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-2">
               <span>4. Tỷ lệ game thủ chốt mua Key thành công (CR)</span>
-              <span className="text-sky-600 font-mono text-sm font-black">{conversionRate}%</span>
+              <span className="text-emerald-600 font-mono text-sm font-black">{conversionRate}%</span>
             </div>
             <input
               type="range"
@@ -135,7 +135,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
               step="0.5"
               value={conversionRate}
               onChange={(e) => setConversionRate(Number(e.target.value))}
-              className="w-full accent-sky-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
+              className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
             />
             <span className="text-[10px] text-slate-400 block mt-1">
               (Thực tế tỷ lệ chốt Key câu cá là cực kì cao do tính cuốn hút cày sao cực mạnh)
@@ -146,7 +146,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
           <div>
             <div className="flex justify-between items-center text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-2">
               <span>5. Thiết lập tỷ lệ hoa hồng đại lý</span>
-              <span className="text-sky-600 font-mono text-sm font-black">{commissionRate}%</span>
+              <span className="text-emerald-600 font-mono text-sm font-black">{commissionRate}%</span>
             </div>
             <input
               type="range"
@@ -155,7 +155,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
               step="1"
               value={commissionRate}
               onChange={(e) => setCommissionRate(Number(e.target.value))}
-              className="w-full accent-sky-505 accent-sky-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
+              className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-slate-200 rounded-lg outline-none"
             />
             <span className="text-[10px] text-slate-400 block mt-1">
               (Hỗ trợ tăng thưởng % chiếc khấu đối với các CTV tạo doanh thu uy tín đều đặn)
@@ -166,7 +166,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
         {/* Live Calculation Outcomes - Right (5 cols) */}
         <div className="md:col-span-5 bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between">
           <div className="space-y-4">
-            <h4 className="text-xs font-black text-sky-700 uppercase tracking-widest">
+            <h4 className="text-xs font-black text-emerald-700 uppercase tracking-widest">
               Dự báo ước tính thu nhập
             </h4>
 
@@ -204,14 +204,14 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
             </div>
 
             {/* BIG COMMISSION HIGHLIGHT */}
-            <div className="bg-sky-500 text-white p-4 rounded-xl text-center mt-3 shadow-md">
-              <span className="text-[10px] text-sky-100 uppercase font-black block tracking-widest">
+            <div className="bg-emerald-500 text-white p-4 rounded-xl text-center mt-3 shadow-md">
+              <span className="text-[10px] text-emerald-100 uppercase font-black block tracking-widest">
                 Hoa Hồng Ước Tính Nhận Nhẹ
               </span>
               <div className="text-2xl font-black font-mono tracking-tight mt-1">
                 + {estimatedCommissions.toLocaleString("vi-VN")} đ
               </div>
-              <p className="text-[9.5px] text-sky-100/80 mt-1 leading-normal">
+              <p className="text-[9.5px] text-emerald-100/80 mt-1 leading-normal">
                 Quyết toán tự động trực tiếp qua MBBank/VietQR tức thì cực nhanh trong 3 phút.
               </p>
             </div>
@@ -222,7 +222,7 @@ export default function CommissionCalculator({ user, onOpenAuth, products }: Com
             {user.isLoggedIn ? (
               <div className="bg-white rounded-xl p-3 border border-slate-200 text-center space-y-1">
                 <span className="text-[9px] text-slate-400 block font-bold leading-none">MÃ AFFILIATE CÁ NHÂN CỦA BẠN</span>
-                <strong className="text-sky-600 text-xs tracking-widest font-mono block uppercase">
+                <strong className="text-emerald-600 text-xs tracking-widest font-mono block uppercase">
                   {user.referralCode}
                 </strong>
                 <p className="text-[9px] text-slate-500 leading-normal">Nhận ngay mức hoa hồng vĩnh viễn {commissionRate}% khi giới thiệu đại lý.</p>

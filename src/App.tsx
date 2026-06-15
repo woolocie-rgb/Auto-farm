@@ -11,6 +11,7 @@ import BlindBag from "./components/BlindBag";
 import PurchaseHistory from "./components/PurchaseHistory";
 import TopUpModal from "./components/TopUpModal";
 import APIAppIntegration from "./components/APIAppIntegration";
+import AdminPortal from "./components/AdminPortal";
 import { PRODUCTS_DATA } from "./data";
 import { User, Order } from "./types";
 import { ShieldCheck, Heart, Sparkles, Star, Info, X } from "lucide-react";
@@ -52,20 +53,75 @@ export default function App() {
     }
   ]);
 
-  // Default logged-in user with VNĐ budget balance
+  // Default logged-in user state, will be hydrated from server on load
   const [user, setUser] = useState<User>({
     phoneNumberOrEmail: "woolocie@gmail.com",
     referralCode: "AFF-WOOLO",
     referralEarnings: 2450000,
     isLoggedIn: true,
-    balance: 0, // start with 0 VNĐ as requested in Image 1
+    balance: 0, // Hydrated from server
   });
+
+  // Load persistent user data on mount
+  useEffect(() => {
+    const savedSession = localStorage.getItem("user_session") || "woolocie@gmail.com";
+    if (savedSession) {
+      fetch(`/api/users/get?username=${encodeURIComponent(savedSession)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.user) {
+            setUser({
+              phoneNumberOrEmail: data.user.phoneNumberOrEmail,
+              referralCode: data.user.referralCode,
+              referralEarnings: data.user.referralEarnings,
+              isLoggedIn: true,
+              isAdmin: data.user.isAdmin,
+              balance: data.user.balance
+            });
+          }
+        })
+        .catch((err) => console.error("Failed to load user state from server:", err));
+    }
+  }, []);
+
+  // Intercept any button/clickable element clicks if the user is not logged in
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (user.isLoggedIn) return; // If logged in, do nothing!
+
+      const target = e.target as HTMLElement;
+      
+      // Find closest button, clickable element with role="button", or classes like cursor-pointer
+      const interactiveEl = target.closest("button") || 
+                            target.closest('[role="button"]') ||
+                            target.closest('.cursor-pointer');
+
+      if (interactiveEl) {
+        // Exemptions:
+        // Any element inside the #auth-modal (login modal itself) should work normally
+        if (interactiveEl.closest("#auth-modal")) {
+          return;
+        }
+
+        // Intercept and open login modal
+        e.preventDefault();
+        e.stopPropagation();
+        setIsAuthOpen(true);
+      }
+    };
+
+    document.addEventListener("click", handleGlobalClick, true); // capture phase
+    return () => {
+      document.removeEventListener("click", handleGlobalClick, true);
+    };
+  }, [user.isLoggedIn]);
 
   const handleOpenAuth = () => {
     setIsAuthOpen(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("user_session");
     setUser({
       phoneNumberOrEmail: "",
       referralEarnings: 0,
@@ -85,8 +141,16 @@ export default function App() {
     }
   };
 
+  // Keep balance synchronized with backend
   const handleUpdateBalance = (newBalance: number) => {
     setUser(prev => ({ ...prev, balance: newBalance }));
+    if (user.isLoggedIn && user.phoneNumberOrEmail) {
+      fetch("/api/users/update-balance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user.phoneNumberOrEmail, balance: newBalance })
+      }).catch(err => console.error("Error syncing balance changes:", err));
+    }
   };
 
   const handleAddKeyToHistory = (keyData: { productName: string; keyDelivered: string; price: number }) => {
@@ -178,6 +242,35 @@ export default function App() {
     setViewMode("seller");
     setActiveTab("sales-mgmt");
   };
+
+  const [currentPath, setCurrentPath] = useState<string>(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handleLocationChange);
+    return () => window.removeEventListener("popstate", handleLocationChange);
+  }, []);
+
+  const isPortal = currentPath === "/portal" || 
+                   currentPath === "/admin" || 
+                   currentPath === "/developer" ||
+                   currentPath.startsWith("/portal/") ||
+                   currentPath.startsWith("/admin/") ||
+                   currentPath.startsWith("/developer/");
+
+  if (isPortal) {
+    return (
+      <AdminPortal
+        orders={orders}
+        onAddSimulatedOrder={handleAddSimulatedOrder}
+        products={PRODUCTS_DATA}
+        currentUser={user}
+        onLogout={handleLogout}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans flex flex-col justify-between selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">
@@ -363,7 +456,7 @@ export default function App() {
               <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wider mb-3">Tìm nhanh các mục</h4>
               <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
                 <button onClick={() => { setViewMode("user"); setActiveTab("products"); }} className="text-left text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">🎫 Bảng Giá Key</button>
-                <button onClick={() => { setViewMode("seller"); setActiveTab("sales-mgmt"); }} className="text-left text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">📊 Quản Trị Seller</button>
+                <button onClick={() => { setViewMode("user"); setActiveTab("purchase-history"); }} className="text-left text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">🔑 Lịch Sử Mua</button>
                 <button onClick={() => { setViewMode("user"); setActiveTab("blind-bag"); }} className="text-left text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">🎁 Chơi Bốc Túi Mù</button>
                 <button onClick={() => setIsAuthOpen(true)} className="text-left text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer">🔓 Kích Hoạt OTP</button>
               </div>
@@ -409,6 +502,7 @@ export default function App() {
         <TopUpModal
           onClose={() => setIsTopUpOpen(false)}
           onAddFunds={(amount) => handleUpdateBalance(user.balance + amount)}
+          currentUser={user}
         />
       )}
 
@@ -422,7 +516,7 @@ export default function App() {
                 <X className="w-4 h-4" />
               </button>
               
-              <div className="flex items-center gap-2 text-indigo-600 mb-4">
+              <div className="flex items-center gap-2 text-emerald-600 mb-4">
                 <Info className="w-6 h-6" />
                 <h3 className="font-black text-lg text-slate-900">Thông Tin Dịch Vụ Buyplay</h3>
               </div>

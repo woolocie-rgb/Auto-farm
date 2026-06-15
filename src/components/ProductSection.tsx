@@ -153,7 +153,7 @@ export default function ProductSection({
         {/* Section Title */}
         <div className="mb-8 pb-4 border-b border-slate-100 text-left">
           <div>
-            <div className="text-sky-600 font-extrabold text-xs uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
+            <div className="text-emerald-600 font-extrabold text-xs uppercase tracking-widest flex items-center gap-1.5 mb-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
               <span>Giao Key Tự Động Uy Tín Sau 5 Giây</span>
             </div>
@@ -169,7 +169,7 @@ export default function ProductSection({
         {/* Product Grid */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-20 bg-slate-50 rounded-3xl border border-slate-200">
-            <p className="text-slate-500 text-sm">Không tìm thấy gói Key nào chứa tính năng &ldquo;<span className="text-sky-600 font-bold">{searchQuery}</span>&rdquo;.</p>
+            <p className="text-slate-505 text-slate-500 text-sm">Không tìm thấy gói Key nào chứa tính năng &ldquo;<span className="text-emerald-600 font-bold">{searchQuery}</span>&rdquo;.</p>
             <button
               onClick={() => {
                 setActiveCategory("all");
@@ -190,9 +190,9 @@ export default function ProductSection({
                 <div
                   key={p.id}
                   id={`product-card-${p.id}`}
-                  className={`bg-white border text-left rounded-3xl p-5 hover:border-sky-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
+                  className={`bg-white border text-left rounded-3xl p-5 hover:border-emerald-400 hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
                     isBestSeller 
-                      ? "ring-2 ring-sky-500 border-sky-400 shadow-md shadow-sky-500/5" 
+                      ? "ring-2 ring-emerald-500 border-emerald-400 shadow-md shadow-emerald-500/5" 
                       : isLifetime 
                         ? "border-amber-300 bg-gradient-to-b from-amber-50/20 to-white" 
                         : "border-slate-200 shadow-sm"
@@ -200,7 +200,7 @@ export default function ProductSection({
                 >
                   {/* Ribbons / Badges */}
                   {isBestSeller && (
-                    <span className="absolute top-0 right-0 bg-sky-500 text-white text-[9px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                    <span className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-wider">
                       MUA NHIỀU NHẤT ⭐
                     </span>
                   )}
@@ -215,13 +215,13 @@ export default function ProductSection({
                     <span className={`inline-block text-[9px] uppercase font-black px-2.5 py-0.5 rounded-full border mb-3 ${
                       isLifetime 
                         ? "bg-amber-100 text-amber-800 border-amber-205" 
-                        : "bg-sky-50 text-sky-700 border-sky-200"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200"
                     }`}>
                       {p.id === "pt-3days" ? "Trải nghiệm" : p.id === "pt-15days" ? "Bán chuyên" : p.id === "pt-30days" ? "Chuyên nghiệp" : "Trọn đời"}
                     </span>
 
                     {/* Product Name */}
-                    <h3 className="text-base font-black text-slate-900 group-hover:text-sky-600 transition-colors">
+                    <h3 className="text-base font-black text-slate-900 group-hover:text-emerald-600 transition-colors">
                       {p.name}
                     </h3>
 
@@ -258,7 +258,7 @@ export default function ProductSection({
                       className={`w-full py-3 px-4 rounded-xl text-xs font-black transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-sm hover:shadow-md ${
                         isLifetime 
                           ? "bg-amber-500 hover:bg-amber-600 text-white" 
-                          : "bg-sky-500 hover:bg-sky-600 text-white"
+                          : "bg-emerald-500 hover:bg-emerald-600 text-white"
                       }`}
                     >
                       <ShoppingCart className="w-4 h-4" />
@@ -277,13 +277,13 @@ export default function ProductSection({
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer" onClick={() => setSelectedProduct(null)} />
             
             <div className="relative w-full max-w-lg bg-white border border-slate-250 rounded-3xl overflow-hidden shadow-2xl z-10 animate-scale-up text-left">
-              <div className="h-2 w-full bg-gradient-to-r from-sky-450 via-indigo-600 to-amber-500 bg-sky-500" />
+              <div className="h-2 w-full bg-gradient-to-r from-emerald-500 via-teal-600 to-amber-500 bg-emerald-500" />
               
               {/* Modal Header */}
               <div className="p-6 pb-4 flex items-center justify-between border-b border-slate-100">
                 <div>
                   <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-sky-500 fill-sky-500 animate-spin" />
+                    <Zap className="w-5 h-5 text-emerald-500 fill-emerald-500 animate-spin" />
                     <span>Cổng Giao Key Tự Động - Buyplay</span>
                   </h3>
                   <p className="text-xs text-slate-500">Chuyển tiền nhận Key ngay lập tức không cần quản trị duyệt</p>
@@ -300,9 +300,9 @@ export default function ProductSection({
               {paymentStep === "details" && (
                 <div className="p-6 space-y-4">
                   {/* Selected Product Banner */}
-                  <div className="bg-sky-50 border border-sky-100 rounded-2xl p-4 flex justify-between items-center">
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex justify-between items-center">
                     <div>
-                      <span className="text-[10px] font-black text-sky-700 uppercase tracking-widest block mb-0.5">SẢN PHẨM SẼ MUA</span>
+                      <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest block mb-0.5">SẢN PHẨM SẼ MUA</span>
                       <h4 className="text-xs font-black text-slate-800">{selectedProduct.name}</h4>
                       <p className="text-[10px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -329,7 +329,7 @@ export default function ProductSection({
                           placeholder="dien-email-cua-ban@gmail.com"
                           value={buyerContact}
                           onChange={(e) => setBuyerContact(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 focus:border-sky-500 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-colors"
+                          className="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition-colors"
                         />
                       </div>
                       <p className="text-[10px] text-slate-400 mt-1">Hệ thống sẽ đồng thời gửi tệp tin Auto Mod và video hướng dẫn lách chống khóa ban acc đến Hòm Thư này.</p>
@@ -363,7 +363,7 @@ export default function ProductSection({
                             onClick={() => setPaymentOption(opt.id as any)}
                             className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                               paymentOption === opt.id
-                                ? "bg-sky-50 border-sky-450 text-sky-950 ring-2 ring-sky-300/35"
+                                ? "bg-emerald-50 border-emerald-450 text-emerald-950 ring-2 ring-emerald-300/35"
                                 : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                             }`}
                           >
@@ -391,7 +391,7 @@ export default function ProductSection({
                     className={`w-full font-black py-3 rounded-xl text-center text-sm shadow-md transition-all cursor-pointer active:scale-95 ${
                       paymentOption === "balance"
                         ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                        : "bg-sky-500 hover:bg-sky-600 text-white"
+                        : "bg-emerald-500 hover:bg-emerald-600 text-white"
                     }`}
                   >
                     {paymentOption === "balance"
@@ -409,7 +409,7 @@ export default function ProductSection({
                     <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase ${
                       paymentOption === "momo"
                         ? "text-rose-700 bg-rose-50 border border-rose-200"
-                        : "text-indigo-700 bg-indigo-50 border border-indigo-200"
+                        : "text-emerald-700 bg-emerald-50 border border-emerald-200"
                     }`}>
                       Chờ Thanh Toán Chuyển Khoản
                     </span>
@@ -505,15 +505,15 @@ export default function ProductSection({
                   <div className={`p-3.5 rounded-xl space-y-1.5 text-center border ${
                     paymentOption === "momo" 
                       ? "bg-rose-50/50 border-rose-100" 
-                      : "bg-sky-50 border-sky-100"
+                      : "bg-emerald-50 border-emerald-100"
                   }`}>
                     <div className="flex items-center justify-center gap-2">
-                      <RefreshCw className={`w-3.5 h-3.5 animate-spin ${paymentOption === "momo" ? "text-rose-600" : "text-sky-600"}`} />
-                      <span className={`text-xs font-black ${paymentOption === "momo" ? "text-rose-900" : "text-sky-900"}`}>
+                      <RefreshCw className={`w-3.5 h-3.5 animate-spin ${paymentOption === "momo" ? "text-rose-600" : "text-emerald-600"}`} />
+                      <span className={`text-xs font-black ${paymentOption === "momo" ? "text-rose-900" : "text-emerald-900"}`}>
                         Đang quét giao dịch liên tục...
                       </span>
                     </div>
-                    <p className={`text-[10px] max-w-sm mx-auto ${paymentOption === "momo" ? "text-rose-700/80" : "text-sky-700/80"}`}>
+                    <p className={`text-[10px] max-w-sm mx-auto ${paymentOption === "momo" ? "text-rose-700/80" : "text-emerald-700/80"}`}>
                       Hệ thống đang tự giao tiếp đối soát giao dịch thời gian thực. Đơn hàng của quý khách sẽ tự động kích hoạt & cấp phát Key tức tốc ngay khi biến động số dư thành công.
                     </p>
                   </div>
@@ -574,7 +574,7 @@ export default function ProductSection({
                       href={selectedProduct.downloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-sky-500 hover:bg-sky-600 text-white p-2 px-3.5 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5 text-xs font-black shadow-sm"
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white p-2 px-3.5 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5 text-xs font-black shadow-sm"
                     >
                       <Download className="w-4 h-4" />
                       <span>Tải Bản Mod</span>
@@ -614,7 +614,7 @@ export default function ProductSection({
                     
                     <button
                       onClick={() => setSentEmailSimStatus(true)}
-                      className="mt-3.5 w-full border border-slate-200 hover:border-sky-300 text-slate-500 hover:text-sky-600 font-bold py-2 rounded-xl text-center text-xs transition-colors cursor-pointer bg-white"
+                      className="mt-3.5 w-full border border-slate-205 border-slate-200 hover:border-emerald-300 text-slate-505 text-slate-500 hover:text-emerald-600 font-bold py-2 rounded-xl text-center text-xs transition-colors cursor-pointer bg-white"
                     >
                       <span>{sentEmailSimStatus ? "Mã Email Xác Thực Đã Kiểm Tra Gửi Lại ✓" : "Bấm giả lập gửi kèm file bypass sang hòm thư phụ"}</span>
                     </button>
