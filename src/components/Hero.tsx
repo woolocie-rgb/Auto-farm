@@ -251,7 +251,7 @@ export default function Hero({
                 <Headphones className="w-3.5 h-3.5" />
               </div>
               <span className="font-extrabold text-xs sm:text-sm text-slate-800">
-                CSKH: <span className="bg-amber-100 text-amber-900 font-mono px-2 py-0.5 rounded-md font-black">0334410858</span> Woolocie
+                CSKH: <span className="bg-amber-100 text-amber-900 font-mono px-2 py-0.5 rounded-md font-black">0344920065</span> Mỹ Hạnh
               </span>
             </div>
           </div>

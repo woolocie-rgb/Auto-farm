@@ -92,9 +92,9 @@ function loadUsers(): UserRecord[] {
       isAdmin: true
     },
     {
-      phoneNumberOrEmail: "0334410858",
+      phoneNumberOrEmail: "0344920065",
       password: "Quocloc@21",
-      referralCode: "AFF-LOC",
+      referralCode: "AFF-HANH",
       referralEarnings: 5000000,
       balance: 850000,
       isAdmin: true
@@ -150,10 +150,10 @@ function loadDeposits(): DepositRecord[] {
     },
     {
       id: "DEP-KLZ82X",
-      phoneNumberOrEmail: "0334410858",
+      phoneNumberOrEmail: "0344920065",
       amount: 500000,
-      paymentMethod: "momo",
-      memo: "BP 0334410858",
+      paymentMethod: "qr",
+      memo: "BP 0344920065",
       status: "pending",
       createdAt: new Date().toISOString(),
       processedAt: null
@@ -199,7 +199,8 @@ async function startServer() {
       return res.status(200).json({ success: true, message: "Webhook is alive and listening!" });
     }
 
-    const { transferType, transferAmount, content } = req.body;
+    // SePay standard webhook variables
+    const { id, transferType, transferAmount, content, gateway, transactionDate, referenceCode } = req.body;
     
     // Check if transfer is an inquiry / in-bound payment
     if (transferType && transferType !== "in") {
@@ -208,7 +209,6 @@ async function startServer() {
 
     const amount = Number(transferAmount);
     if (isNaN(amount) || amount <= 0) {
-      // Return 200 so SePay test pings or dummy requests pass without triggering "Có lỗi xảy ra" in SePay UI
       return res.status(200).json({ success: true, message: "Demo/verification request received. Webhook live!" });
     }
 
@@ -216,7 +216,20 @@ async function startServer() {
       return res.status(200).json({ success: true, message: "Verify request success - structure holds" });
     }
 
-    // Process memo, e.g. "BP 0334410858" or "BP WOOLOCIE@GMAIL.COM"
+    // Prevent duplicate processing using SePay transaction ID or referenceCode
+    const transactionId = id || referenceCode || `WEBHOOK-${Date.now()}`;
+    const uniqueDepositId = `DEP-SE-${transactionId}`;
+    const deposits = loadDeposits();
+
+    if (deposits.some(d => d.id === uniqueDepositId)) {
+      console.warn(`[SePay] Transaction ${transactionId} already processed previously.`);
+      return res.status(200).json({ 
+        success: true, 
+        message: `Transaction ${transactionId} has already been processed and credited.` 
+      });
+    }
+
+    // Process memo, e.g. "BP 0334410858" or "BP WOOLOCIE"
     const memo = content.toString().trim().toUpperCase();
     console.log(`[SePay] Parsing payment memo: "${memo}" for billing amount ${amount} đ`);
 
@@ -268,6 +281,20 @@ async function startServer() {
     
     saveUsers(users);
 
+    // Save and log the automated transaction in our deposit history for client visibility
+    const newDeposit: DepositRecord = {
+      id: uniqueDepositId,
+      phoneNumberOrEmail: matchedUser.phoneNumberOrEmail,
+      amount: amount,
+      paymentMethod: gateway ? `SePay (${gateway})` : "SePay Auto",
+      memo: memo,
+      status: "approved",
+      createdAt: transactionDate ? new Date(transactionDate).toISOString() : new Date().toISOString(),
+      processedAt: new Date().toISOString()
+    };
+    deposits.push(newDeposit);
+    saveDeposits(deposits);
+
     console.log(`[SePay] SUCCESS: User ${matchedUser.phoneNumberOrEmail} balance updated from ${oldBalance} -> ${matchedUser.balance} (+${amount})`);
     
     return res.status(200).json({ 
@@ -300,7 +327,7 @@ async function startServer() {
       const deposits = loadDeposits();
       const id = "DEP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
       
-      const isUserAdmin = ["0334410858", "woolocie@gmail.com"].includes(phoneNumberOrEmail.trim().toLowerCase());
+      const isUserAdmin = ["0344920065", "woolocie@gmail.com"].includes(phoneNumberOrEmail.trim().toLowerCase());
       
       const newDeposit: DepositRecord = {
         id,
@@ -489,7 +516,7 @@ async function startServer() {
         referralCode: "AFF-" + Math.random().toString(36).substring(2, 7).toUpperCase(),
         referralEarnings: 0,
         balance: 100000, // 100k welcome test balance
-        isAdmin: ["0334410858", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21",
+        isAdmin: ["0344920065", "woolocie@gmail.com"].includes(username.trim().toLowerCase()) && password === "Quocloc@21",
         referredBy: validReferrerCode
       };
 

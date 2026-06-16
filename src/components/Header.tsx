@@ -282,7 +282,7 @@ export default function Header({
                   <div className="hidden md:flex flex-col text-left">
                     <span className="text-xs sm:text-[13px] font-black text-slate-800 leading-none group-hover:text-emerald-600 transition-colors flex items-center gap-1">
                       <span>{user.phoneNumberOrEmail.split("@")[0]}</span>
-                      {["0334410858", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
+                      {["0344920065", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
                         <span className="text-[7.5px] bg-red-100 text-red-650 text-red-600 px-1 py-0.5 rounded font-black tracking-tighter shrink-0">ADMIN/TEST</span>
                       )}
                     </span>

@@ -1,0 +1,26 @@
+[
+  {
+    "phoneNumberOrEmail": "woolocie@gmail.com",
+    "password": "Quocloc@21",
+    "referralCode": "AFF-WOOLO",
+    "referralEarnings": 2450000,
+    "balance": 150000,
+    "isAdmin": true
+  },
+  {
+    "phoneNumberOrEmail": "0344920065",
+    "password": "Quocloc@21",
+    "referralCode": "AFF-LOC",
+    "referralEarnings": 5000000,
+    "balance": 850000,
+    "isAdmin": true
+  },
+  {
+    "phoneNumberOrEmail": "0878338244",
+    "password": "Quocloc@21",
+    "referralCode": "AFF-4A1P7",
+    "referralEarnings": 0,
+    "balance": 220000,
+    "isAdmin": false
+  }
+]

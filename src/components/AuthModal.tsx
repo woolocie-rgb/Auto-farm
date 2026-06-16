@@ -49,7 +49,7 @@ export default function AuthModal({ onClose, onLoginSuccess }: AuthModalProps) {
       
       // Auto-handle special user credentials immediately as a fallback and seed
       if (
-        ["0334410858", "woolocie@gmail.com"].includes(usernameLower) &&
+        ["0344920065", "woolocie@gmail.com"].includes(usernameLower) &&
         password === "Quocloc@21"
       ) {
         const localUsers = getLocalUsers();

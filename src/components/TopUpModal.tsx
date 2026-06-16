@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X, Landmark, Check, ShieldCheck, Clock } from "lucide-react";
 import { User } from "../types";
 import { getLocalDeposits, saveLocalDeposits } from "../utils/dbFallback";
+import { BANK_CONFIG } from "../utils/bankConfig";
 
 interface TopUpModalProps {
   onClose: () => void;
@@ -12,21 +13,53 @@ interface TopUpModalProps {
 export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpModalProps) {
   const [amountOption, setAmountOption] = useState<number>(50000);
   
-  const isUserAdmin = currentUser?.isAdmin || ["0334410858", "woolocie@gmail.com"].includes(currentUser?.phoneNumberOrEmail?.trim().toLowerCase() || "");
+  const isUserAdmin = currentUser?.isAdmin || ["0344920065", "woolocie@gmail.com"].includes(currentUser?.phoneNumberOrEmail?.trim().toLowerCase() || "");
   
-  const [paymentMethod, setPaymentMethod] = useState<"qr" | "card" | "momo">(isUserAdmin ? "card" : "qr");
+  const [paymentMethod, setPaymentMethod] = useState<"qr" | "card">(isUserAdmin ? "card" : "qr");
   const [isSuccess, setIsSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [successAmt, setSuccessAmt] = useState(0);
   const [pendingId, setPendingId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Derive custom user memo for SePay, e.g. "BP WOOLOCIE" or "BP 0334410858"
+  // Track initial balance to detect SePay automated credit updates
+  const [initialBalance, setInitialBalance] = useState<number>(currentUser?.balance || 0);
+
+  // Derive custom user memo for SePay, e.g. "BP WOOLOCIE" or "BP 0344920065"
   const userMemoKey = currentUser?.phoneNumberOrEmail
     ? currentUser.phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "")
     : "WOOLOCIE";
 
   const billingMemo = `BP ${userMemoKey}`;
+
+  // Poll to check if user's balance on the server has increased, indicating SePay completed the top-up
+  React.useEffect(() => {
+    let interval: any;
+    if (isPending && currentUser?.phoneNumberOrEmail) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/users/get?username=${encodeURIComponent(currentUser.phoneNumberOrEmail)}`);
+          const data = await res.json();
+          if (data.success && data.user) {
+            const currentBalance = data.user.balance;
+            if (currentBalance > initialBalance) {
+              clearInterval(interval);
+              const addedAmount = currentBalance - initialBalance;
+              onAddFunds(addedAmount);
+              setSuccessAmt(addedAmount);
+              setIsPending(false);
+              setIsSuccess(true);
+            }
+          }
+        } catch (e) {
+          console.error("Error polling user balance for SePay auto-approve:", e);
+        }
+      }, 2500);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isPending, currentUser, initialBalance]);
 
   const amountPresets = [20000, 50000, 100000, 200000, 500000];
 
@@ -174,7 +207,7 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
                   <div>📌 <strong>LƯU Ý QUAN TRỌNG:</strong></div>
                   <div>1. Vui lòng chuyển khoản đúng số tiền <span className="text-rose-600 font-bold">{amountOption.toLocaleString("vi-VN")} đ</span>.</div>
                   <div>2. Ghi chính xác nội dung chuyển khoản: <span className="text-emerald-700 underline font-black font-mono text-[11px]">{billingMemo}</span>.</div>
-                  <div>3. Sau khi chuyển tiền, Admin Trần Huỳnh Quốc Lộc sẽ đối soát giao dịch và duyệt số dư cho bạn sau 60 giây.</div>
+                  <div>3. Sau khi chuyển tiền, Hệ thống tự động hoặc Admin {BANK_CONFIG.accountNameVi} sẽ đối soát giao dịch và duyệt số dư cho bạn sau 60 giây.</div>
                 </div>
 
                 <button
@@ -190,44 +223,33 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
             ) : (
               <div className="space-y-4 text-xs text-slate-700 text-left">
                 
-                {/* Switch view ATM QR vs Simulator Card vs MoMo */}
-                <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 r-xl rounded-xl">
-                  {isUserAdmin && (
+                {/* Switch view ATM QR vs Simulator Card */}
+                {isUserAdmin && (
+                  <div className="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("card")}
                       className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
                         paymentMethod === "card"
-                          ? "bg-white text-emerald-700 shadow-sm col-span-2"
-                          : "text-slate-500 hover:text-slate-800 col-span-2"
+                          ? "bg-white text-emerald-700 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
                       }`}
                     >
-                      🚀 Simulator (Admin Only)
+                      🚀 Simulator (Admin)
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("qr")}
-                    className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
-                      paymentMethod === "qr"
-                        ? "bg-white text-emerald-700 shadow-sm"
-                        : "text-slate-500 hover:text-slate-800"
-                    }`}
-                  >
-                    🏧 Ngân Hàng (VietQR)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("momo")}
-                    className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
-                      paymentMethod === "momo"
-                        ? "bg-white text-rose-600 shadow-sm"
-                        : "text-slate-500 hover:text-rose-600"
-                    }`}
-                  >
-                    🌸 Ví MoMo
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("qr")}
+                      className={`py-1.5 rounded-lg text-center font-bold text-[10px] cursor-pointer transition-all ${
+                        paymentMethod === "qr"
+                          ? "bg-white text-emerald-700 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      🏧 Ngân Hàng (VietQR)
+                    </button>
+                  </div>
+                )}
 
                 {paymentMethod === "card" && isUserAdmin && (
                   <form onSubmit={handleSimulateTopUp} className="space-y-4">
@@ -308,11 +330,11 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
                     </div>
 
                     <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-2xl flex flex-col items-center justify-center animate-fade-in">
-                      {/* Dynamic VietQR API code representation with customized user memo */}
+                      {/* SePay QR Code API representation with customized user memo */}
                       <div className="w-40 h-40 bg-white border border-slate-200 rounded-2xl flex items-center justify-center p-1 shadow-sm relative overflow-hidden">
                         <img 
-                          src={`https://img.vietqr.io/image/vietcombank-0181003622756-compact2.png?amount=${amountOption}&addInfo=${encodeURIComponent(billingMemo)}&accountName=TRAN%20HUYNH%20QUOC%20LOC`}
-                          alt="VietQR Chuyển Khoản"
+                          src={`https://qr.sepay.vn/img?bank=VietinBank&acc=${BANK_CONFIG.accountNumber}&template=compact&amount=${amountOption}&des=${encodeURIComponent(billingMemo)}`}
+                          alt="SePay QR Code Chuyển Khoản"
                           className="w-full h-full object-contain"
                           referrerPolicy="no-referrer"
                         />
@@ -320,10 +342,10 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
 
                       <div className="text-center mt-2">
                         <span className="text-[8px] bg-emerald-50 text-emerald-700 font-extrabold px-2 py-0.5 rounded-full border border-emerald-200 font-sans uppercase animate-pulse">
-                          VIETCOMBANK / NAPAS 247
+                          {BANK_CONFIG.bankDisplayName} / NAPAS 247
                         </span>
-                        <div className="text-slate-800 font-black text-sm mt-1 font-mono tracking-wide leading-none">STK: 0181003622756</div>
-                        <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none mt-1">Chủ tài khoản: TRẦN HUỲNH QUỐC LỘC</div>
+                        <div className="text-slate-800 font-black text-sm mt-1 font-mono tracking-wide leading-none">STK: {BANK_CONFIG.accountNumber}</div>
+                        <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none mt-1">Chủ tài khoản: {BANK_CONFIG.accountNameVi}</div>
                         <div className="text-[11px] text-emerald-700 font-extrabold mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
                       </div>
                     </div>
@@ -344,66 +366,7 @@ export default function TopUpModal({ onClose, onAddFunds, currentUser }: TopUpMo
                   </div>
                 )}
 
-                {paymentMethod === "momo" && (
-                  <div className="space-y-4 text-center py-1 animate-fade-in">
-                    {/* Size selector */}
-                    <div>
-                      <label className="block text-[10.5px] font-black text-slate-500 uppercase mb-2 text-left">
-                        Chọn Mệnh Giá Muốn Nạp:
-                      </label>
-                      <div className="grid grid-cols-5 gap-1.5">
-                        {amountPresets.map((val) => (
-                          <button
-                            key={val}
-                            type="button"
-                            onClick={() => setAmountOption(val)}
-                            className={`py-1.5 rounded-lg text-center border font-mono font-bold text-[10px] transition-all cursor-pointer ${
-                              amountOption === val
-                                ? "bg-rose-600 text-white border-rose-600"
-                                : "bg-white text-slate-700 border-slate-200 hover:border-rose-300"
-                            }`}
-                          >
-                            {(val / 1000).toLocaleString()}k
-                          </button>
-                        ))}
-                      </div>
-                    </div>
 
-                    <div className="bg-rose-50/50 border border-rose-105 p-2.5 rounded-2xl flex flex-col items-center justify-center">
-                      <div className="w-40 h-40 bg-white border-2 border-rose-500 rounded-2xl flex items-center justify-center p-1 shadow-sm relative overflow-hidden">
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=2%7C99%7C0334410858%7CTRAN%20HUYNH%20QUOC%20LOC%7Cwoolocie%40gmail.com%7C0%7C0%7C${amountOption}%7C${encodeURIComponent(billingMemo)}`}
-                          alt="MoMo QR Code Chuyển Khoản"
-                          className="w-full h-full object-contain"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-
-                      <div className="text-center mt-2">
-                        <span className="text-[8px] bg-rose-50 text-rose-750 font-extrabold px-2 py-0.5 rounded-full border border-rose-200 font-sans uppercase animate-pulse">
-                          VÍ ĐIỆT TỬ MOMO
-                        </span>
-                        <div className="text-slate-800 font-black text-sm mt-1 font-mono tracking-wide leading-none animate-pulse">SĐT: 0334410858</div>
-                        <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider leading-none mt-1">Chủ tài khoản: TRẦN HUỲNH QUỐC LỘC</div>
-                        <div className="text-[11px] text-rose-750 text-rose-605 font-bold mt-1 font-mono">Số tiền: {amountOption.toLocaleString("vi-VN")} đ</div>
-                      </div>
-                    </div>
-
-                    <div className="bg-rose-50 border border-rose-200 p-2.5 rounded-xl text-[10px] text-rose-950 font-bold leading-relaxed text-left">
-                      📋 <strong>Cú pháp bắt buộc</strong>: Nội dung ghi chú ghi chính xác: <span className="font-mono text-emerald-700 underline text-xs font-black">{billingMemo}</span>.
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => createDepositRequest(amountOption)}
-                      disabled={isSubmitting}
-                      className="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 rounded-xl cursor-pointer shadow-md transition-all active:scale-95 text-xs flex items-center justify-center gap-1.5"
-                    >
-                      <Check className="w-4 h-4 text-rose-200" />
-                      <span>{isSubmitting ? "Đang Gửi..." : "BẤM VÀO ĐÂY SAU KHI ĐÃ CHUYỂN KHOẢN MOMO"}</span>
-                    </button>
-                  </div>
-                )}
 
               </div>
             )}

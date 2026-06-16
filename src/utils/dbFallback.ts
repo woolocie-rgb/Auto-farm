@@ -44,9 +44,9 @@ export function initLocalDB() {
         isAdmin: true
       },
       {
-        phoneNumberOrEmail: "0334410858",
+        phoneNumberOrEmail: "0344920065",
         password: "Quocloc@21",
-        referralCode: "AFF-LOC",
+        referralCode: "AFF-HANH",
         referralEarnings: 5000000,
         balance: 10000000,
         isAdmin: true
@@ -91,10 +91,10 @@ export function initLocalDB() {
       },
       {
         id: "DEP-KLZ82X",
-        phoneNumberOrEmail: "0334410858",
+        phoneNumberOrEmail: "0344920065",
         amount: 500000,
-        paymentMethod: "momo",
-        memo: "BP 0334410858",
+        paymentMethod: "qr",
+        memo: "BP 0344920065",
         status: "pending",
         createdAt: new Date().toISOString(),
         processedAt: null

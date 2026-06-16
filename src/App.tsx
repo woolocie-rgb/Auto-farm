@@ -118,7 +118,7 @@ export default function App() {
               });
             } else {
               // If not found, check if it is our testing admin and auto-seed/hydrate
-              if (["0334410858", "woolocie@gmail.com"].includes(usernameLower)) {
+              if (["0344920065", "woolocie@gmail.com"].includes(usernameLower)) {
                 setUser({
                   phoneNumberOrEmail: savedSession,
                   referralCode: "AFF-" + savedSession.split("@")[0].toUpperCase().substring(0, 5),
@@ -434,7 +434,7 @@ export default function App() {
         {/* VIEWMODE 1: USER CONSOLE */}
         {viewMode === "user" && (
           <div className="space-y-12 pb-16">
-            {user.isLoggedIn && ["0334410858", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
+            {user.isLoggedIn && ["0344920065", "woolocie@gmail.com"].includes(user.phoneNumberOrEmail.trim().toLowerCase()) && (
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
                 <div className="bg-gradient-to-r from-emerald-555 from-emerald-600 via-teal-600 to-emerald-700 rounded-3xl p-4 sm:p-5 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 text-left border-2 border-emerald-400">
                   <div className="space-y-1">
@@ -684,7 +684,7 @@ export default function App() {
                 <p>🚀 <strong>Phiên Bản Phần Mềm</strong>: Buyplay Auto Fruit Client v2.55 Build 901 chính thức.</p>
                 <p>📋 <strong>Tính năng chính</strong>: Bỏ qua hội thoại NPC ở cửa hàng nông sản, mua tự động tất cả loại quả tròn, bí ngô, dưa hấu, cà rốt gieo hạt gieo trồng.</p>
                 <p>🔒 <strong>Cơ chế bảo mật</strong>: Nhích nhẹ tọa độ ngẫu nhiên dẹp tình trạng nghi ngờ từ server Haegin, hoàn toàn yên tâm cắm máy xuyên màn đêm.</p>
-                <p>📞 <strong>Sự cố & hoàn tiền</strong>: Liên hệ CSKH qua Zalo/SDT: <span className="font-bold underline text-emerald-600 font-mono">0334410858</span> gặp Admin Woolocie để được giải quyết tức tốc 24/7.</p>
+                <p>📞 <strong>Sự cố & hoàn tiền</strong>: Liên hệ CSKH qua Zalo/SDT: <span className="font-bold underline text-emerald-600 font-mono">0344920065</span> gặp Admin Mỹ Hạnh để được giải quyết tức tốc 24/7.</p>
               </div>
 
               <div className="mt-6">

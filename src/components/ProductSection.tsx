@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Product, User, Order } from "../types";
 import { PRODUCTS_DATA, DRIP_EMAILS_DATA } from "../data";
+import { BANK_CONFIG } from "../utils/bankConfig";
 import { 
   Zap, Copy, Star, ShoppingCart, ShieldCheck, Mail, 
   QrCode, Download, RefreshCw, Send, CheckCircle2, ChevronRight, Check, CheckCircle
@@ -29,7 +30,7 @@ export default function ProductSection({
 }: ProductSectionProps) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [buyerContact, setBuyerContact] = useState("");
-  const [paymentOption, setPaymentOption] = useState<"banking" | "momo" | "balance">("banking");
+  const [paymentOption, setPaymentOption] = useState<"banking" | "balance">("banking");
   const [paymentStep, setPaymentStep] = useState<"details" | "scanning" | "success">("details");
   const [tempDeliveredKey, setTempDeliveredKey] = useState("");
   const [copiedText, setCopiedText] = useState(false);
@@ -345,10 +346,9 @@ export default function ProductSection({
                           </span>
                         )}
                       </label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
-                          { id: "banking", name: "ATM / Vietcombank QR", label: "Tự động duyệt 24/7" },
-                          { id: "momo", name: "Ví điện tử MoMo Auto", label: "Thanh toán sấm sét 24/7" },
+                          { id: "banking", name: `ATM / ${BANK_CONFIG.bankDisplayName} QR`, label: "Tự động duyệt 24/7" },
                           { 
                             id: "balance", 
                             name: "Số Dư Tài Khoản", 
@@ -388,11 +388,7 @@ export default function ProductSection({
                   {/* Submit Button to initiate transfer */}
                   <button
                     onClick={handleInitQR}
-                    className={`w-full font-black py-3 rounded-xl text-center text-sm shadow-md transition-all cursor-pointer active:scale-95 ${
-                      paymentOption === "balance"
-                        ? "bg-emerald-500 hover:bg-emerald-600 text-white"
-                        : "bg-emerald-500 hover:bg-emerald-600 text-white"
-                    }`}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-center text-sm shadow-md transition-all cursor-pointer active:scale-95"
                   >
                     {paymentOption === "balance"
                       ? `Thanh Toán Bằng Số Dư • ${selectedProduct.price.toLocaleString("vi-VN")} đ`
@@ -401,22 +397,15 @@ export default function ProductSection({
                 </div>
               )}
 
-
-              {/* STEP 2: VIETQR / MOMO GENERATION & AUTO RECEIPT CHECKER */}
+              {/* STEP 2: VIETQR GENERATION & AUTO RECEIPT CHECKER */}
               {paymentStep === "scanning" && (
                 <div className="p-6 space-y-5">
                   <div className="text-center space-y-1">
-                    <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase ${
-                      paymentOption === "momo"
-                        ? "text-rose-700 bg-rose-50 border border-rose-200"
-                        : "text-emerald-700 bg-emerald-50 border border-emerald-200"
-                    }`}>
+                    <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase text-emerald-700 bg-emerald-50 border border-emerald-200">
                       Chờ Thanh Toán Chuyển Khoản
                     </span>
                     <h4 className="text-base font-black text-slate-800 mt-1">
-                      {paymentOption === "momo"
-                        ? "Quét Mã Chuyển Khoản Qua Ứng Dụng MoMo"
-                        : "Quét Mã Chuyển Khoản Bằng Ứng Dụng Ngân Hàng"}
+                      Quét Mã Chuyển Khoản Bằng Ứng Dụng Ngân Hàng
                     </h4>
                   </div>
 
@@ -424,46 +413,37 @@ export default function ProductSection({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
                     {/* Visual QR Simulator */}
                     <div className="relative bg-white p-2 rounded-2xl shadow-inner border border-slate-300/60 w-44 h-44 mx-auto flex items-center justify-center overflow-hidden">
-                      {paymentOption === "momo" ? (
-                        <img 
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=2%7C99%7C0334410858%7CTRAN%20HUYNH%20QUOC%20LOC%7Cwoolocie%40gmail.com%7C0%7C0%7C${selectedProduct.price}%7CBP%20${selectedProduct.price}`}
-                          alt="MoMo QR Code Chuyển Khoản"
-                          className="w-full h-full object-contain"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <img 
-                          src={`https://img.vietqr.io/image/vietcombank-0181003622756-compact2.png?amount=${selectedProduct.price}&addInfo=BP%20${selectedProduct.price}&accountName=TRAN%20HUYNH%20QUOC%20LOC`}
-                          alt="VietQR Chuyển Khoản"
-                          className="w-full h-full object-contain"
-                          referrerPolicy="no-referrer"
-                        />
-                      )}
+                      <img 
+                        src={`https://qr.sepay.vn/img?bank=VietinBank&acc=${BANK_CONFIG.accountNumber}&template=compact&amount=${selectedProduct.price}&des=${encodeURIComponent(
+                          `BP ${user?.phoneNumberOrEmail ? user.phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "") : "GUEST"}`
+                        )}`}
+                        alt="VietQR Chuyển Khoản"
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
                       
                       {/* Laser scanning bar effect */}
-                      <div className={`absolute left-2 right-2 h-0.5 animate-bounce shadow ${
-                        paymentOption === "momo" ? "bg-rose-500" : "bg-emerald-500"
-                      }`} style={{ top: "10%" }} />
+                      <div className="absolute left-2 right-2 h-0.5 animate-bounce shadow bg-emerald-500" style={{ top: "10%" }} />
                     </div>
 
                     {/* Bank Details */}
                     <div className="space-y-2 text-xs">
                       <div>
                         <span className="text-[9px] text-slate-400 block font-bold leading-none uppercase">NHÀ THỤ HƯỞNG</span>
-                        <span className={`font-extrabold ${paymentOption === "momo" ? "text-rose-700" : "text-emerald-700"}`}>
-                          {paymentOption === "momo" ? "VÍ ĐIỆN TỬ MOMO" : "VIETCOMBANK (Ngân Hàng Ngoại Thương)"}
+                        <span className="font-extrabold text-emerald-700">
+                          {BANK_CONFIG.bankDisplayName} (Ngân hàng thụ hưởng)
                         </span>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-400 block font-bold leading-none uppercase">
-                          {paymentOption === "momo" ? "SỐ ĐIỆN THOẠI" : "SỐ TÀI KHOẢN"}
+                          SỐ TÀI KHOẢN
                         </span>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-mono font-black text-slate-900 bg-white border px-1.5 py-0.5 rounded text-[11px]">
-                            {paymentOption === "momo" ? "0334410858" : "0181003622756"}
+                            {BANK_CONFIG.accountNumber}
                           </span>
                           <button 
-                            onClick={() => handleCopy(paymentOption === "momo" ? "0334410858" : "0181003622756")} 
+                            onClick={() => handleCopy(BANK_CONFIG.accountNumber)} 
                             className="text-slate-400 hover:text-slate-600 cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
@@ -472,15 +452,13 @@ export default function ProductSection({
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-400 block font-bold leading-none uppercase">TÊN TÀI KHOẢN</span>
-                        <span className="font-extrabold text-slate-800 uppercase">TRẦN HUỲNH QUỐC LỘC</span>
+                        <span className="font-extrabold text-slate-800 uppercase">
+                          {BANK_CONFIG.accountNameVi}
+                        </span>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-400 block font-bold leading-none uppercase">SỐ TIỀN CẦN CHUYỂN</span>
-                        <span className={`font-mono font-black border px-1.5 py-0.5 rounded text-[12px] ${
-                          paymentOption === "momo" 
-                            ? "text-rose-600 bg-rose-50 border-rose-100" 
-                            : "text-emerald-600 bg-emerald-50 border-emerald-100"
-                        }`}>
+                        <span className="font-mono font-black border px-1.5 py-0.5 rounded text-[12px] text-emerald-600 bg-emerald-50 border-emerald-100">
                           {selectedProduct.price.toLocaleString("vi-VN")} đ
                         </span>
                       </div>
@@ -488,10 +466,10 @@ export default function ProductSection({
                         <span className="text-[9px] text-rose-600 block font-bold leading-none uppercase">NỘI DUNG CHUYỂN KHOẢN (GHI CHÚ)</span>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-mono font-black text-red-650 text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded text-xs select-all">
-                            BP {selectedProduct.price}
+                            BP {user?.phoneNumberOrEmail ? user.phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "") : "GUEST"}
                           </span>
                           <button 
-                            onClick={() => handleCopy(`BP ${selectedProduct.price}`)} 
+                            onClick={() => handleCopy(`BP ${user?.phoneNumberOrEmail ? user.phoneNumberOrEmail.split("@")[0].toUpperCase().replace(/[^A-Z0-9]/g, "") : "GUEST"}`)} 
                             className="text-red-500 hover:text-red-600 cursor-pointer"
                           >
                             <Copy className="w-3 h-3" />
@@ -502,18 +480,14 @@ export default function ProductSection({
                   </div>
 
                   {/* Status Checking Bar */}
-                  <div className={`p-3.5 rounded-xl space-y-1.5 text-center border ${
-                    paymentOption === "momo" 
-                      ? "bg-rose-50/50 border-rose-100" 
-                      : "bg-emerald-50 border-emerald-100"
-                  }`}>
+                  <div className="p-3.5 rounded-xl space-y-1.5 text-center border bg-emerald-50 border-emerald-100">
                     <div className="flex items-center justify-center gap-2">
-                      <RefreshCw className={`w-3.5 h-3.5 animate-spin ${paymentOption === "momo" ? "text-rose-600" : "text-emerald-600"}`} />
-                      <span className={`text-xs font-black ${paymentOption === "momo" ? "text-rose-900" : "text-emerald-900"}`}>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                      <span className="text-xs font-black text-emerald-900">
                         Đang quét giao dịch liên tục...
                       </span>
                     </div>
-                    <p className={`text-[10px] max-w-sm mx-auto ${paymentOption === "momo" ? "text-rose-700/80" : "text-emerald-700/80"}`}>
+                    <p className="text-[10px] max-w-sm mx-auto text-emerald-700/80">
                       Hệ thống đang tự giao tiếp đối soát giao dịch thời gian thực. Đơn hàng của quý khách sẽ tự động kích hoạt & cấp phát Key tức tốc ngay khi biến động số dư thành công.
                     </p>
                   </div>
